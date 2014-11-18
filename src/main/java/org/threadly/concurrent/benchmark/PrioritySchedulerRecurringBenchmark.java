@@ -12,12 +12,14 @@ import org.threadly.util.debug.Profiler;
 public class PrioritySchedulerRecurringBenchmark extends AbstractPrioritySchedulerBenchmark {
   private static final int SCHEDULE_DELAY = 10;
   
-  private static boolean run = true;
+  private static volatile boolean run = true;
   private static final AtomicIntegerArray countArray = new AtomicIntegerArray(RUNNABLE_COUNT);
   
-  public static void main(String args[]) throws InterruptedException {
+  public static void main(String args[]) {
     try {
       runTest();
+    } catch (Throwable t) {
+      t.printStackTrace();
     } finally {
       System.exit(0);
     }
