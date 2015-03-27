@@ -22,9 +22,8 @@ public abstract class AbstractPrioritySchedulerBenchmark extends AbstractBenchma
   
   static {
     // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
-    ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, POOL_SIZE, 1000 * 10, 
-                                              TaskPriority.High, 0);
-    ORIGINAL_EXECUTOR.prestartAllCoreThreads();
+    ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
+    ORIGINAL_EXECUTOR.prestartAllThreads();
     //EXECUTOR = ORIGINAL_EXECUTOR.makeSubPool(POOL_SIZE);
     EXECUTOR = ORIGINAL_EXECUTOR;
     //EXECUTOR = new SingleThreadScheduler();

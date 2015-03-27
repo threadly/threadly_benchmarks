@@ -8,7 +8,7 @@ import org.threadly.test.concurrent.TestCondition;
 public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
   private static final int SUBMITTION_THREAD_COUNT = 64;
   
-  private static final NoThreadScheduler scheduler = new NoThreadScheduler(false);
+  private static final NoThreadScheduler scheduler = new NoThreadScheduler();
   private static final AtomicInteger execCount = new AtomicInteger(0);
   private static volatile boolean run = true;
   private static volatile boolean tickDone = false;
@@ -56,15 +56,11 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
       public void run() {
         while (run) {
           int runCount;
-          try {
-            runCount = scheduler.tick(null);
-            if (runCount > 0) {
-              execCount.addAndGet(runCount);
-            } else {
-              Thread.yield();
-            }
-          } catch (InterruptedException e) {
-            // should not be possible with non-blocking scheduler
+          runCount = scheduler.tick(null);
+          if (runCount > 0) {
+            execCount.addAndGet(runCount);
+          } else {
+            Thread.yield();
           }
         }
         tickDone = true;

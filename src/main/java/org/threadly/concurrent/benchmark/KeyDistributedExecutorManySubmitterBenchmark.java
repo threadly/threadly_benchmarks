@@ -17,8 +17,8 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
   private static final KeyDistributedScheduler DISTRIBUTOR;
   
   static {
-    EXECUTOR = new PriorityScheduler(SUBMITTER_QTY * 2, SUBMITTER_QTY * 2, 1000 * 10);
-    EXECUTOR.prestartAllCoreThreads();
+    EXECUTOR = new PriorityScheduler(SUBMITTER_QTY * 2);
+    EXECUTOR.prestartAllThreads();
     DISTRIBUTOR = new KeyDistributedScheduler(EXECUTOR);
   }
 
