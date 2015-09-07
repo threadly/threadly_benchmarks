@@ -10,6 +10,7 @@ import org.threadly.concurrent.KeyDistributedScheduler;
 public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
   private static final int SCHEDULE_DELAY = 1;
   private static final int POOL_SIZE = 4;
+  private static final int QUEUE_SIZE = 100;
   private static final PriorityScheduler EXECUTOR;
   private static final KeyDistributedScheduler DISTRIBUTOR;
   
@@ -24,16 +25,16 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
   private static volatile long thread2Count = -1;
   
   public static void main(String args[]) {
-    run(Boolean.parseBoolean(args[0]), Integer.parseInt(args[1]));
+    run(Boolean.parseBoolean(args[0]));
   }
   
-  private static void run(final boolean schedule, final int queueSize) {
+  private static void run(final boolean schedule) {
     Runnable thread1 = new Runner() {
       @Override
       public void run() {
         if (run) {
           thread1Count++;
-          addSelf(schedule, queueSize);
+          addSelf(schedule);
         }
       }
     };
@@ -42,7 +43,7 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
       public void run() {
         if (run) {
           thread2Count++;
-          addSelf(schedule, queueSize);
+          addSelf(schedule);
         }
       }
     };
@@ -65,18 +66,18 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
   private static abstract class Runner implements Runnable {
     private boolean firstAdd = true;
     
-    protected void addSelf(boolean schedule, int queueSize) {
+    protected void addSelf(boolean schedule) {
       if (firstAdd) {
-        for (int i = 1; i < queueSize; i++) {
-          DISTRIBUTOR.addTask(this, this);
+        for (int i = 1; i < QUEUE_SIZE; i++) {
+          DISTRIBUTOR.execute(this, this);
         }
         firstAdd = false;
       }
       
       if (schedule) {
-        DISTRIBUTOR.scheduleTask(this, this, SCHEDULE_DELAY);
+        DISTRIBUTOR.schedule(this, this, SCHEDULE_DELAY);
       } else {
-        DISTRIBUTOR.addTask(this, this);
+        DISTRIBUTOR.execute(this, this);
       }
     }
   }

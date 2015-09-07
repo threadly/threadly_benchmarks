@@ -9,21 +9,14 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import org.threadly.util.Clock;
 import org.threadly.util.debug.Profiler;
 
-public class PrioritySchedulerBenchmark extends AbstractPrioritySchedulerBenchmark {
-  private static volatile boolean run = true;
-  private static final AtomicIntegerArray countArray = new AtomicIntegerArray(RUNNABLE_COUNT);
+public abstract class AbstractSchedulerScheduleBenchmark extends AbstractSchedulerBenchmark {
+  private static final int SCHEDULE_DELAY = 10;
+  private static final boolean DIFFER_SCHEDULE_TIME = false;
   
-  public static void main(String args[]) {
-    try {
-      runTest();
-    } catch (Throwable t) {
-      t.printStackTrace();
-    } finally {
-      System.exit(0);
-    }
-  }
+  private volatile boolean run = true;
+  private final AtomicIntegerArray countArray = new AtomicIntegerArray(RUNNABLE_COUNT);
   
-  private static void runTest() throws InterruptedException {
+  public void runTest() throws InterruptedException {
     run = true;
     
     List<TestRunnable> runnables = new ArrayList<TestRunnable>(RUNNABLE_COUNT);
@@ -44,7 +37,7 @@ public class PrioritySchedulerBenchmark extends AbstractPrioritySchedulerBenchma
       if (USE_JAVA_EXECUTOR) {
         JAVA_EXECUTOR.schedule(it.next(), delayTime, TimeUnit.MILLISECONDS);
       } else {
-        EXECUTOR.schedule(it.next(), delayTime);
+        getScheduler().schedule(it.next(), delayTime);
       }
     }
     
@@ -54,7 +47,7 @@ public class PrioritySchedulerBenchmark extends AbstractPrioritySchedulerBenchma
     
     run = false;
     Thread.sleep(1000);
-    ORIGINAL_EXECUTOR.shutdownNow();
+    shutdownScheduler();
     
     if (RUN_PROFILER) {
       p.stop();
@@ -77,7 +70,7 @@ public class PrioritySchedulerBenchmark extends AbstractPrioritySchedulerBenchma
     }
   }
   
-  private static class TestRunnable implements Runnable {
+  private class TestRunnable implements Runnable {
     private final int index;
     
     private TestRunnable(int index) {
@@ -86,16 +79,25 @@ public class PrioritySchedulerBenchmark extends AbstractPrioritySchedulerBenchma
 
     @Override
     public void run() {
+      long startTime = System.currentTimeMillis();
       if (run) {
         countArray.incrementAndGet(index);
-        long startTime = System.currentTimeMillis();
+        
+        long scheduleDelay;
+        if (DIFFER_SCHEDULE_TIME) {
+          scheduleDelay = SCHEDULE_DELAY * index;
+        } else {
+          scheduleDelay = SCHEDULE_DELAY;
+        }
+        
         while (System.currentTimeMillis() - startTime < THREAD_RUN_TIME) {
           // spin loop
         }
+        
         if (USE_JAVA_EXECUTOR) {
-          JAVA_EXECUTOR.execute(this);
+          JAVA_EXECUTOR.schedule(this, scheduleDelay, TimeUnit.MILLISECONDS);
         } else {
-          EXECUTOR.execute(this);
+          getScheduler().schedule(this, scheduleDelay);
         }
       }
     }

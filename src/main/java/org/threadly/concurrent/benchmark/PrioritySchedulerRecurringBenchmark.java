@@ -1,106 +1,40 @@
 package org.threadly.concurrent.benchmark;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicIntegerArray;
+import org.threadly.concurrent.PriorityScheduler;
+import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.TaskPriority;
 
-import org.threadly.util.Clock;
-import org.threadly.util.debug.Profiler;
-
-public class PrioritySchedulerRecurringBenchmark extends AbstractPrioritySchedulerBenchmark {
-  private static final int SCHEDULE_DELAY = 10;
+public class PrioritySchedulerRecurringBenchmark extends AbstractSchedulerRecurringBenchmark {
+  protected static final PriorityScheduler ORIGINAL_EXECUTOR;
+  protected static final SubmitterScheduler EXECUTOR;
   
-  private static volatile boolean run = true;
-  private static final AtomicIntegerArray countArray = new AtomicIntegerArray(RUNNABLE_COUNT);
+  static {
+    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
+    ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
+    if (! USE_JAVA_EXECUTOR) {
+      ORIGINAL_EXECUTOR.prestartAllThreads();
+    }
+    //EXECUTOR = ORIGINAL_EXECUTOR.makeSubPool(POOL_SIZE);
+    EXECUTOR = ORIGINAL_EXECUTOR;
+  }
   
   public static void main(String args[]) {
     try {
-      runTest();
+      new PrioritySchedulerRecurringBenchmark().runTest();
+      System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
-    } finally {
-      System.exit(0);
+      System.exit(1);
     }
   }
-  
-  public static void runTest() throws InterruptedException {
-    run = true;
-    
-    List<TestRunnable> runnables = new ArrayList<TestRunnable>(RUNNABLE_COUNT);
-    for (int i = 0; i < RUNNABLE_COUNT; i++) {
-      runnables.add(new TestRunnable(i));
-    }
-    Profiler p;
-    if (RUN_PROFILER) {
-      p = new Profiler(10);
-      p.start();
-    }
 
-    long startTime = Clock.accurateTimeMillis();
-    Iterator<TestRunnable> it = runnables.iterator();
-    while (it.hasNext()) {
-      long delayTime = startTime - System.currentTimeMillis() + RUNNABLE_ADD_TIME;
-      //System.out.println(delayTime);
-      if (USE_JAVA_EXECUTOR) {
-        JAVA_EXECUTOR.scheduleWithFixedDelay(it.next(), delayTime, SCHEDULE_DELAY, TimeUnit.MILLISECONDS);
-      } else {
-        EXECUTOR.scheduleWithFixedDelay(it.next(), delayTime, SCHEDULE_DELAY);
-      }
-    }
-    
-    Thread.sleep(startTime - System.currentTimeMillis() + RUNNABLE_ADD_TIME);
+  @Override
+  protected SubmitterScheduler getScheduler() {
+    return EXECUTOR;
+  }
 
-    Thread.sleep(RUN_TIME);
-    
-    run = false;
-    Thread.sleep(1000);
+  @Override
+  protected void shutdownScheduler() {
     ORIGINAL_EXECUTOR.shutdownNow();
-    
-    if (RUN_PROFILER) {
-      p.stop();
-    }
-    
-    int total = 0;
-    StringBuilder result = new StringBuilder();
-    for(int i = 0; i < RUNNABLE_COUNT; i++) {
-      if (i != 0) {
-        result.append(", ");
-      }
-      result.append(countArray.get(i));
-      total += countArray.get(i);
-    }
-    //System.out.println(result.toString());
-    System.out.println("total executions: " + total);
-    
-    if (RUN_PROFILER) {
-      p.dump(System.out);
-    }
-  }
-  
-  private static class TestRunnable implements Runnable {
-    private final int index;
-    
-    private TestRunnable(int index) {
-      this.index = index;
-    }
-
-    @Override
-    public void run() {
-      long startTime = System.currentTimeMillis();
-      if (run) {
-        countArray.incrementAndGet(index);
-        
-        while (System.currentTimeMillis() - startTime < THREAD_RUN_TIME) {
-          // spin loop
-        }
-      }
-    }
-    
-    @Override
-    public String toString() {
-      return Integer.toHexString(System.identityHashCode(this));
-    }
   }
 }

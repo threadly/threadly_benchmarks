@@ -4,7 +4,7 @@ import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.TaskPriority;
 
-public class PrioritySchedulerScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
+public class PrioritySchedulerExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   protected static final PriorityScheduler ORIGINAL_EXECUTOR;
   protected static final SubmitterScheduler EXECUTOR;
   
@@ -20,7 +20,7 @@ public class PrioritySchedulerScheduleBenchmark extends AbstractSchedulerSchedul
   
   public static void main(String args[]) {
     try {
-      new PrioritySchedulerScheduleBenchmark().runTest();
+      new PrioritySchedulerExecuteBenchmark().runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();

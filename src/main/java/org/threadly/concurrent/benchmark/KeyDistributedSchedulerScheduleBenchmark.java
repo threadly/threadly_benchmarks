@@ -1,26 +1,25 @@
 package org.threadly.concurrent.benchmark;
 
+import org.threadly.concurrent.KeyDistributedScheduler;
 import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.TaskPriority;
 
-public class PrioritySchedulerScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
+public class KeyDistributedSchedulerScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
   protected static final PriorityScheduler ORIGINAL_EXECUTOR;
   protected static final SubmitterScheduler EXECUTOR;
   
   static {
-    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
     ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
     if (! USE_JAVA_EXECUTOR) {
       ORIGINAL_EXECUTOR.prestartAllThreads();
     }
-    //EXECUTOR = ORIGINAL_EXECUTOR.makeSubPool(POOL_SIZE);
-    EXECUTOR = ORIGINAL_EXECUTOR;
+    EXECUTOR = new KeyDistributedScheduler(ORIGINAL_EXECUTOR).getSubmitterSchedulerForKey("foo");
   }
   
   public static void main(String args[]) {
     try {
-      new PrioritySchedulerScheduleBenchmark().runTest();
+      new KeyDistributedSchedulerScheduleBenchmark().runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();

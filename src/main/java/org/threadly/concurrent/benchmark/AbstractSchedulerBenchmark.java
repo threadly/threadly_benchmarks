@@ -3,31 +3,15 @@ package org.threadly.concurrent.benchmark;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import org.threadly.concurrent.PriorityScheduler;
-import org.threadly.concurrent.SubmitterSchedulerInterface;
-import org.threadly.concurrent.TaskPriority;
+import org.threadly.concurrent.SubmitterScheduler;
 
-public abstract class AbstractPrioritySchedulerBenchmark extends AbstractBenchmark {
+public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
   protected static final int POOL_SIZE = 100;
   protected static final int RUNNABLE_COUNT = 10000;
   protected static final int RUNNABLE_ADD_TIME = 1000 * 5 * 1;
   protected static final int THREAD_RUN_TIME = 20;
   protected static final boolean USE_JAVA_EXECUTOR = false;
   protected static final boolean RUN_PROFILER = false;
-  
-  protected static final PriorityScheduler ORIGINAL_EXECUTOR;
-  protected static final SubmitterSchedulerInterface EXECUTOR;
-  
-  static {
-    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
-    ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
-    if (! USE_JAVA_EXECUTOR) {
-      ORIGINAL_EXECUTOR.prestartAllThreads();
-    }
-    //EXECUTOR = ORIGINAL_EXECUTOR.makeSubPool(POOL_SIZE);
-    EXECUTOR = ORIGINAL_EXECUTOR;
-    //EXECUTOR = new SingleThreadScheduler();
-  }
   
   protected static final ScheduledExecutorService JAVA_EXECUTOR;
   
@@ -39,4 +23,8 @@ public abstract class AbstractPrioritySchedulerBenchmark extends AbstractBenchma
     JAVA_EXECUTOR = jExecutor;
     //JAVA_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
   }
+  
+  protected abstract SubmitterScheduler getScheduler();
+  
+  protected abstract void shutdownScheduler();
 }

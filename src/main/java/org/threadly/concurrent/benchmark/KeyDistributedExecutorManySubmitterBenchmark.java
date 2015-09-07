@@ -49,9 +49,9 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
           DistributorRunnable dr = new DistributorRunnable();
           while (run) {
             if (schedule) {
-              DISTRIBUTOR.scheduleTask(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
+              DISTRIBUTOR.schedule(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
             } else {
-              DISTRIBUTOR.addTask(DISTRIBUTOR_KEY, dr);
+              DISTRIBUTOR.execute(DISTRIBUTOR_KEY, dr);
             }
             
             //spin(100);
@@ -59,9 +59,9 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
 
           dr = new DistributorRunnable();
           if (schedule) {
-            DISTRIBUTOR.scheduleTask(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
+            DISTRIBUTOR.schedule(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
           } else {
-            DISTRIBUTOR.addTask(DISTRIBUTOR_KEY, dr);
+            DISTRIBUTOR.execute(DISTRIBUTOR_KEY, dr);
           }
           
           lastRunnable.set(index, dr);
@@ -89,7 +89,7 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
       }
     }
     System.out.println((schedule ? "Schedule total: " : "Total: ") + 
-                         execCount + ", occured after stop: " + (execCount - countAtStop));
+                         execCount + " occured after stop: " + (execCount - countAtStop));
   }
   
   private static class DistributorRunnable implements Runnable {

@@ -51,9 +51,9 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
           DistributorRunnable dr = new DistributorRunnable();
           while (run) {
             if (schedule) {
-              DISTRIBUTOR.scheduleTask(RANDOM.nextInt(), dr, SCHEDULE_DELAY);
+              DISTRIBUTOR.schedule(RANDOM.nextInt(), dr, SCHEDULE_DELAY);
             } else {
-              DISTRIBUTOR.addTask(RANDOM.nextInt(), dr);
+              DISTRIBUTOR.execute(RANDOM.nextInt(), dr);
             }
             
             //spin(100);
@@ -61,9 +61,9 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
 
           dr = new DistributorRunnable();
           if (schedule) {
-            DISTRIBUTOR.scheduleTask(RANDOM.nextInt(), dr, SCHEDULE_DELAY);
+            DISTRIBUTOR.schedule(RANDOM.nextInt(), dr, SCHEDULE_DELAY);
           } else {
-            DISTRIBUTOR.addTask(RANDOM.nextInt(), dr);
+            DISTRIBUTOR.execute(RANDOM.nextInt(), dr);
           }
           
           lastRunnable.set(index, dr);
@@ -91,7 +91,7 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
       }
     }
     System.out.println((schedule ? "Schedule total: " : "Total: ") + 
-                         execCount.get() + ", occured after stop: " + (execCount.get() - countAtStop));
+                         execCount.get() + " occured after stop: " + (execCount.get() - countAtStop));
   }
   
   private static class DistributorRunnable implements Runnable {
