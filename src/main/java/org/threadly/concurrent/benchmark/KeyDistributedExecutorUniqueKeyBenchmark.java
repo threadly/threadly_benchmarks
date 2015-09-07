@@ -51,9 +51,9 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
           DistributorRunnable dr = new DistributorRunnable();
           while (run) {
             if (schedule) {
-              DISTRIBUTOR.schedule(RANDOM.nextInt(), dr, SCHEDULE_DELAY);
+              DISTRIBUTOR.schedule(new Object(), dr, SCHEDULE_DELAY);
             } else {
-              DISTRIBUTOR.execute(RANDOM.nextInt(), dr);
+              DISTRIBUTOR.execute(new Object(), dr);
             }
             
             //spin(100);
@@ -61,9 +61,9 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
 
           dr = new DistributorRunnable();
           if (schedule) {
-            DISTRIBUTOR.schedule(RANDOM.nextInt(), dr, SCHEDULE_DELAY);
+            DISTRIBUTOR.schedule(new Object(), dr, SCHEDULE_DELAY);
           } else {
-            DISTRIBUTOR.execute(RANDOM.nextInt(), dr);
+            DISTRIBUTOR.execute(new Object(), dr);
           }
           
           lastRunnable.set(index, dr);
