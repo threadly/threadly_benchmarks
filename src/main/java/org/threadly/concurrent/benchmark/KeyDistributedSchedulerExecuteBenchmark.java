@@ -7,12 +7,14 @@ import org.threadly.concurrent.TaskPriority;
 
 public class KeyDistributedSchedulerExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   protected static final PriorityScheduler ORIGINAL_EXECUTOR;
+  protected static final KeyDistributedScheduler KEY_SCHEDULER;
   
   static {
     ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
     if (! USE_JAVA_EXECUTOR) {
       ORIGINAL_EXECUTOR.prestartAllThreads();
     }
+    KEY_SCHEDULER = new KeyDistributedScheduler(ORIGINAL_EXECUTOR);
   }
   
   public static void main(String args[]) {
@@ -27,8 +29,7 @@ public class KeyDistributedSchedulerExecuteBenchmark extends AbstractSchedulerEx
 
   @Override
   protected SubmitterScheduler getScheduler() {
-    return new KeyDistributedScheduler(ORIGINAL_EXECUTOR)
-             .getSubmitterSchedulerForKey(new Object());
+    return KEY_SCHEDULER.getSubmitterSchedulerForKey(new Object());
   }
 
   @Override
