@@ -3,7 +3,6 @@ package org.threadly.concurrent.benchmark;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.threadly.util.Clock;
@@ -31,11 +30,7 @@ public abstract class AbstractSchedulerExecuteBenchmark extends AbstractSchedule
     while (it.hasNext()) {
       long delayTime = startTime - System.currentTimeMillis() + RUNNABLE_ADD_TIME;
       //System.out.println(delayTime);
-      if (USE_JAVA_EXECUTOR) {
-        JAVA_EXECUTOR.schedule(it.next(), delayTime, TimeUnit.MILLISECONDS);
-      } else {
-        getScheduler().schedule(it.next(), delayTime);
-      }
+      getScheduler().schedule(it.next(), delayTime);
     }
     
     Thread.sleep(startTime - System.currentTimeMillis() + RUNNABLE_ADD_TIME);
@@ -82,11 +77,7 @@ public abstract class AbstractSchedulerExecuteBenchmark extends AbstractSchedule
         while (System.currentTimeMillis() - startTime < THREAD_RUN_TIME) {
           // spin loop
         }
-        if (USE_JAVA_EXECUTOR) {
-          JAVA_EXECUTOR.execute(this);
-        } else {
-          getScheduler().execute(this);
-        }
+        getScheduler().execute(this);
       }
     }
     

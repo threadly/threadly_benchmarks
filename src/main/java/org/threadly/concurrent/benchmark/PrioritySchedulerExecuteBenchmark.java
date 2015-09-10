@@ -6,16 +6,11 @@ import org.threadly.concurrent.TaskPriority;
 
 public class PrioritySchedulerExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   protected static final PriorityScheduler ORIGINAL_EXECUTOR;
-  protected static final SubmitterScheduler EXECUTOR;
   
   static {
     // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
     ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
-    if (! USE_JAVA_EXECUTOR) {
-      ORIGINAL_EXECUTOR.prestartAllThreads();
-    }
-    //EXECUTOR = ORIGINAL_EXECUTOR.makeSubPool(POOL_SIZE);
-    EXECUTOR = ORIGINAL_EXECUTOR;
+    ORIGINAL_EXECUTOR.prestartAllThreads();
   }
   
   public static void main(String args[]) {
@@ -30,7 +25,7 @@ public class PrioritySchedulerExecuteBenchmark extends AbstractSchedulerExecuteB
 
   @Override
   protected SubmitterScheduler getScheduler() {
-    return EXECUTOR;
+    return ORIGINAL_EXECUTOR;
   }
 
   @Override

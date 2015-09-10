@@ -11,9 +11,7 @@ public class KeyDistributedSchedulerRecurringBenchmark extends AbstractScheduler
   
   static {
     ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
-    if (! USE_JAVA_EXECUTOR) {
-      ORIGINAL_EXECUTOR.prestartAllThreads();
-    }
+    ORIGINAL_EXECUTOR.prestartAllThreads();
     KEY_SCHEDULER = new KeyDistributedScheduler(ORIGINAL_EXECUTOR);
   }
   
