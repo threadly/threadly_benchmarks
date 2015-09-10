@@ -2,6 +2,7 @@ package org.threadly.concurrent.benchmark;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.threadly.concurrent.DoNothingRunnable;
 import org.threadly.concurrent.NoThreadScheduler;
 import org.threadly.test.concurrent.TestCondition;
 
@@ -28,20 +29,13 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
     
     for (int i = 0; i < SUBMITTION_THREAD_COUNT; i++) {
       new Thread(new Runnable() {
-        private final Runnable runnable = new Runnable() {
-          @Override
-          public void run() {
-            // no-op, run fast
-          }
-        };
-        
         @Override
         public void run() {
           while (! run) {
             Thread.yield();
           }
           while (run) {
-            scheduler.execute(runnable);
+            scheduler.execute(DoNothingRunnable.instance());
           }
         }
       }).start();

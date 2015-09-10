@@ -83,6 +83,7 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
         indexRunnable = lastRunnable.get(i);
       }
     }
+    @SuppressWarnings("unused")
     long countAtStop = execCount.get();
     for (int i = 0; i < SUBMITTER_QTY; i++) {
       DistributorRunnable indexRunnable = lastRunnable.get(i);
