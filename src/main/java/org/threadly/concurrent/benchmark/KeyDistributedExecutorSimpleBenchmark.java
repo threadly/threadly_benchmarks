@@ -59,8 +59,10 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
     run = false;
     EXECUTOR.shutdownNow();
     
-    System.out.println((thread1Count + thread2Count) + " = " + 
-                         thread1Count + " + " + thread2Count);
+    /*System.out.println((thread1Count + thread2Count) + " = " + 
+                         thread1Count + " + " + thread2Count);*/
+    System.out.println(KeyDistributedExecutorSimpleBenchmark.class.getSimpleName() + 
+                         ": " + (thread1Count + thread2Count));
   }
   
   private static abstract class Runner implements Runnable {

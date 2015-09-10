@@ -88,8 +88,10 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
         spin(500000); // spin for 1/2 millisecond
       }
     }
-    System.out.println((schedule ? "Schedule total: " : "Total: ") + 
-                         execCount + " occured after stop: " + (execCount - countAtStop));
+    /*System.out.println((schedule ? "Schedule total: " : "Total: ") + 
+                         execCount + " occured after stop: " + (execCount - countAtStop));*/
+    System.out.println(KeyDistributedExecutorManySubmitterBenchmark.class.getSimpleName() + 
+                         ": " + execCount);
   }
   
   private static class DistributorRunnable implements Runnable {

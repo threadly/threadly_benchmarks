@@ -57,7 +57,7 @@ public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedu
       total += countArray.get(i);
     }
     //System.out.println(result.toString());
-    System.out.println("total executions: " + total);
+    System.out.println(this.getClass().getSimpleName() + ": " + total);
     
     if (RUN_PROFILER) {
       p.dump(System.out);

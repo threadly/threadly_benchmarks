@@ -8,14 +8,9 @@ import org.threadly.test.concurrent.TestCondition;
 public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
   private static final int SUBMITTION_THREAD_COUNT = 64;
   
-  private static final NoThreadScheduler scheduler = new NoThreadScheduler();
-  private static final AtomicInteger execCount = new AtomicInteger(0);
-  private static volatile boolean run = true;
-  private static volatile boolean tickDone = false;
-  
   public static void main(String args[]) {
     try {
-      runTest();
+      new NoThreadSchedulerBenchmark().runTest();
     } catch (Throwable t) {
       t.printStackTrace();
     } finally {
@@ -23,7 +18,12 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
     }
   }
   
-  private static void runTest() throws InterruptedException {
+  private final NoThreadScheduler scheduler = new NoThreadScheduler();
+  private final AtomicInteger execCount = new AtomicInteger(0);
+  private volatile boolean run = true;
+  private volatile boolean tickDone = false;
+  
+  private void runTest() throws InterruptedException {
     run = false;
     
     for (int i = 0; i < SUBMITTION_THREAD_COUNT; i++) {
@@ -79,6 +79,6 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
       }
     }.blockTillTrue(RUN_TIME * 15, 1000);
     
-    System.out.println("Exec count: " + execCount.get());
+    System.out.println(this.getClass().getSimpleName() + ": " + execCount.get());
   }
 }
