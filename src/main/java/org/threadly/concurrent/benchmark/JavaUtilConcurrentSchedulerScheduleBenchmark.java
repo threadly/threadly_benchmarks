@@ -6,32 +6,32 @@ import org.threadly.concurrent.ScheduledExecutorServiceWrapper;
 import org.threadly.concurrent.SubmitterScheduler;
 
 public class JavaUtilConcurrentSchedulerScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
-  protected static final ScheduledThreadPoolExecutor ORIGINAL_EXECUTOR;
-  protected static final SubmitterScheduler EXECUTOR;
-  
-  static {
-    ORIGINAL_EXECUTOR = new ScheduledThreadPoolExecutor(POOL_SIZE);
-    ORIGINAL_EXECUTOR.prestartAllCoreThreads();
-    EXECUTOR = new ScheduledExecutorServiceWrapper(ORIGINAL_EXECUTOR);
-  }
-  
   public static void main(String args[]) {
     try {
-      new JavaUtilConcurrentSchedulerScheduleBenchmark().runTest();
+      new JavaUtilConcurrentSchedulerScheduleBenchmark(Integer.parseInt(args[0])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
       System.exit(1);
     }
   }
+  
+  protected final ScheduledThreadPoolExecutor originalExecutor;
+  protected final SubmitterScheduler executor;
+  
+  public JavaUtilConcurrentSchedulerScheduleBenchmark(int poolSize) {
+    originalExecutor = new ScheduledThreadPoolExecutor(poolSize);
+    originalExecutor.prestartAllCoreThreads();
+    executor = new ScheduledExecutorServiceWrapper(originalExecutor);
+  }
 
   @Override
   protected SubmitterScheduler getScheduler() {
-    return EXECUTOR;
+    return executor;
   }
 
   @Override
   protected void shutdownScheduler() {
-    ORIGINAL_EXECUTOR.shutdownNow();
+    originalExecutor.shutdownNow();
   }
 }

@@ -5,31 +5,31 @@ import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.TaskPriority;
 
 public class PrioritySchedulerScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
-  protected static final PriorityScheduler ORIGINAL_EXECUTOR;
-  
-  static {
-    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
-    ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
-    ORIGINAL_EXECUTOR.prestartAllThreads();
-  }
-  
   public static void main(String args[]) {
     try {
-      new PrioritySchedulerScheduleBenchmark().runTest();
+      new PrioritySchedulerScheduleBenchmark(Integer.parseInt(args[0])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
       System.exit(1);
     }
   }
+  
+  protected final PriorityScheduler scheduler;
+  
+  public PrioritySchedulerScheduleBenchmark(int poolSize) {
+    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
+    scheduler = new PriorityScheduler(poolSize, TaskPriority.High, 0);
+    scheduler.prestartAllThreads();
+  }
 
   @Override
   protected SubmitterScheduler getScheduler() {
-    return ORIGINAL_EXECUTOR;
+    return scheduler;
   }
 
   @Override
   protected void shutdownScheduler() {
-    ORIGINAL_EXECUTOR.shutdownNow();
+    scheduler.shutdownNow();
   }
 }

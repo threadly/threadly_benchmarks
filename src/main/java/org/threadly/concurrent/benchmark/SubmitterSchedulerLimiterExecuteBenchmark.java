@@ -6,19 +6,9 @@ import org.threadly.concurrent.TaskPriority;
 import org.threadly.concurrent.limiter.SubmitterSchedulerLimiter;
 
 public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
-  protected static final PriorityScheduler ORIGINAL_EXECUTOR;
-  protected static final SubmitterScheduler EXECUTOR;
-  
-  static {
-    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
-    ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
-    ORIGINAL_EXECUTOR.prestartAllThreads();
-    EXECUTOR = new SubmitterSchedulerLimiter(ORIGINAL_EXECUTOR, Integer.MAX_VALUE);
-  }
-  
   public static void main(String args[]) {
     try {
-      new SubmitterSchedulerLimiterExecuteBenchmark().runTest();
+      new SubmitterSchedulerLimiterExecuteBenchmark(Integer.parseInt(args[0])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
@@ -26,13 +16,23 @@ public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractScheduler
     }
   }
 
+  protected final PriorityScheduler originalExecutor;
+  protected final SubmitterScheduler executor;
+  
+  public SubmitterSchedulerLimiterExecuteBenchmark(int poolSize) {
+    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
+    originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
+    originalExecutor.prestartAllThreads();
+    executor = new SubmitterSchedulerLimiter(originalExecutor, Integer.MAX_VALUE);
+  }
+  
   @Override
   protected SubmitterScheduler getScheduler() {
-    return EXECUTOR;
+    return executor;
   }
 
   @Override
   protected void shutdownScheduler() {
-    ORIGINAL_EXECUTOR.shutdownNow();
+    originalExecutor.shutdownNow();
   }
 }

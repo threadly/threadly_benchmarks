@@ -6,32 +6,32 @@ import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.TaskPriority;
 
 public class KeyDistributedSchedulerScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
-  protected static final PriorityScheduler ORIGINAL_EXECUTOR;
-  protected static final KeyDistributedScheduler KEY_SCHEDULER;
-  
-  static {
-    ORIGINAL_EXECUTOR = new PriorityScheduler(POOL_SIZE, TaskPriority.High, 0);
-    ORIGINAL_EXECUTOR.prestartAllThreads();
-    KEY_SCHEDULER = new KeyDistributedScheduler(ORIGINAL_EXECUTOR);
-  }
-  
   public static void main(String args[]) {
     try {
-      new KeyDistributedSchedulerScheduleBenchmark().runTest();
+      new KeyDistributedSchedulerScheduleBenchmark(Integer.parseInt(args[0])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
       System.exit(1);
     }
   }
+  
+  protected final PriorityScheduler originalExecutor;
+  protected final KeyDistributedScheduler keyScheduler;
+  
+  public KeyDistributedSchedulerScheduleBenchmark(int poolSize) {
+    originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
+    originalExecutor.prestartAllThreads();
+    keyScheduler = new KeyDistributedScheduler(originalExecutor);
+  }
 
   @Override
   protected SubmitterScheduler getScheduler() {
-    return KEY_SCHEDULER.getSubmitterSchedulerForKey(new Object());
+    return keyScheduler.getSubmitterSchedulerForKey(new Object());
   }
 
   @Override
   protected void shutdownScheduler() {
-    ORIGINAL_EXECUTOR.shutdownNow();
+    originalExecutor.shutdownNow();
   }
 }

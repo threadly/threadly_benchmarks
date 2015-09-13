@@ -31,7 +31,6 @@ public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedu
     Iterator<TestRunnable> it = runnables.iterator();
     while (it.hasNext()) {
       long delayTime = startTime - System.currentTimeMillis() + RUNNABLE_ADD_TIME;
-      //System.out.println(delayTime);
       getScheduler().scheduleWithFixedDelay(it.next(), delayTime, SCHEDULE_DELAY);
     }
     
@@ -57,7 +56,7 @@ public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedu
       total += countArray.get(i);
     }
     //System.out.println(result.toString());
-    System.out.println(this.getClass().getSimpleName() + ": " + total);
+    System.out.println(this.getClass().getSimpleName() + OUTPUT_DELIM + total);
     
     if (RUN_PROFILER) {
       p.dump(System.out);

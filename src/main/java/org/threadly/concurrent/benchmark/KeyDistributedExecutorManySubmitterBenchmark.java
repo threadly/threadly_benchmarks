@@ -6,27 +6,35 @@ import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.KeyDistributedScheduler;
 
 /**
- * This test is good at creating very large queues for the distributor key.
+ * This benchmark is good at creating very large queues for the distributor key.
  */
 public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchmark {
-  private static final int SUBMITTER_QTY = 50;
   private static final int SCHEDULE_DELAY = 1;
   private static final Object DISTRIBUTOR_KEY = "foo";
-
-  private static final PriorityScheduler EXECUTOR;
-  private static final KeyDistributedScheduler DISTRIBUTOR;
   
-  static {
-    EXECUTOR = new PriorityScheduler(SUBMITTER_QTY * 2);
-    EXECUTOR.prestartAllThreads();
-    DISTRIBUTOR = new KeyDistributedScheduler(EXECUTOR);
+  public static void main(String[] args) {
+    new KeyDistributedExecutorManySubmitterBenchmark(Integer.parseInt(args[1]))
+            .run(Boolean.parseBoolean(args[0]));
   }
 
-  private static volatile boolean run = true;
-  private static volatile long execCount = 0;
-  private static final AtomicReferenceArray<DistributorRunnable> lastRunnable = new AtomicReferenceArray<DistributorRunnable>(SUBMITTER_QTY);
+  private final PriorityScheduler executor;
+  private final KeyDistributedScheduler distributor;
+  private final int submitterQty;
+  private volatile boolean run = true;
+  private volatile long execCount = 0;
+  private final AtomicReferenceArray<DistributorRunnable> lastRunnable;
   
-  private static void spin(int maxTimeInNanos) {
+  public KeyDistributedExecutorManySubmitterBenchmark(int submitterQty) {
+    executor = new PriorityScheduler(submitterQty * 2);
+    executor.prestartAllThreads();
+    distributor = new KeyDistributedScheduler(executor);
+    this.submitterQty = submitterQty;
+    
+    lastRunnable = 
+        new AtomicReferenceArray<DistributorRunnable>(submitterQty);
+  }
+  
+  private void spin(int maxTimeInNanos) {
     long startTime = System.nanoTime();
     int waitTime = RANDOM.nextInt(maxTimeInNanos);
     while (run && System.nanoTime() < startTime + waitTime) {
@@ -35,23 +43,19 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
     }
   }
   
-  public static void main(String[] args) {
-    run(Boolean.parseBoolean(args[0]));
-  }
-  
-  private static void run(final boolean schedule) {
+  protected void run(final boolean schedule) {
     long startTime = System.currentTimeMillis();
-    for (int i = 0; i < SUBMITTER_QTY; i++) {
+    for (int i = 0; i < submitterQty; i++) {
       final int index = i;
-      EXECUTOR.schedule(new Runnable() {
+      executor.schedule(new Runnable() {
         @Override
         public void run() {
           DistributorRunnable dr = new DistributorRunnable();
           while (run) {
             if (schedule) {
-              DISTRIBUTOR.schedule(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
+              distributor.schedule(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
             } else {
-              DISTRIBUTOR.execute(DISTRIBUTOR_KEY, dr);
+              distributor.execute(DISTRIBUTOR_KEY, dr);
             }
             
             //spin(100);
@@ -59,9 +63,9 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
 
           dr = new DistributorRunnable();
           if (schedule) {
-            DISTRIBUTOR.schedule(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
+            distributor.schedule(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
           } else {
-            DISTRIBUTOR.execute(DISTRIBUTOR_KEY, dr);
+            distributor.execute(DISTRIBUTOR_KEY, dr);
           }
           
           lastRunnable.set(index, dr);
@@ -74,7 +78,7 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
     }
 
     run = false;
-    for (int i = 0; i < SUBMITTER_QTY; i++) {
+    for (int i = 0; i < submitterQty; i++) {
       DistributorRunnable indexRunnable = lastRunnable.get(i);
       while (indexRunnable == null) {
         spin(500000); // spin for 1/2 millisecond
@@ -83,19 +87,19 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
     }
     @SuppressWarnings("unused")
     long countAtStop = execCount;
-    for (int i = 0; i < SUBMITTER_QTY; i++) {
+    for (int i = 0; i < submitterQty; i++) {
       DistributorRunnable indexRunnable = lastRunnable.get(i);
       while (! indexRunnable.runFinshed) {
         spin(500000); // spin for 1/2 millisecond
       }
     }
     /*System.out.println((schedule ? "Schedule total: " : "Total: ") + 
-                         execCount + " occured after stop: " + (execCount - countAtStop));*/
+                         execCount + " occurred after stop: " + (execCount - countAtStop));*/
     System.out.println(KeyDistributedExecutorManySubmitterBenchmark.class.getSimpleName() + 
-                         ": " + execCount);
+                         OUTPUT_DELIM + execCount);
   }
   
-  private static class DistributorRunnable implements Runnable {
+  private class DistributorRunnable implements Runnable {
     public volatile boolean runFinshed = false;
     
     @Override
