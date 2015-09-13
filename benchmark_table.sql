@@ -16,7 +16,7 @@ create table run_results (
   total_executions int NOT NULL,
   duration int NOT NULL CHECK (duration > 0),
 
-  FORIEGN KEY (class_group_id) REFERENCES class_group_identifier (id), 
+  FOREIGN KEY (class_group_id) REFERENCES class_group_identifier (id), 
   PRIMARY KEY (benchmark_group_id, benchmark_group_run_id) 
 );
 
