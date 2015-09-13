@@ -9,15 +9,22 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
+import org.skife.jdbi.v2.DBI;
+import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.TransactionCallback;
+import org.skife.jdbi.v2.TransactionStatus;
 import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.util.ExceptionUtils;
 import org.threadly.util.StringUtils;
 
 public class BenchmarkCollectionRunner {
-  private static final int RUN_COUNT = 2;//5;
+  private static final int RUN_COUNT = 5;
+  private static final boolean INCLUDE_JAVA_BASELINE = false;
+  private static final boolean EXIT_ON_BENCHMARK_FAILURE = false;
   private static final boolean DISCARD_FIRST_RUN = false;
-  private static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx2560m -Xms2048m -Xss256k ";
+  private static final String SHELL = "bash";
+  private static final String JAVA_EXECUTE_CMD = /*"nice -n -10" +*/ "/usr/bin/java -Xmx2560m -Xms2048m -Xss256k ";
   private static final PriorityScheduler SCHEDULER;
   private static final List<BenchmarkCase> BENCHMARKS_TO_RUN;
   
@@ -31,56 +38,87 @@ public class BenchmarkCollectionRunner {
     String[] noArgs = new String[]{""};
     String[] executeScheduleRecurringThreadCases = new String[]{"10", "50", "100", "200", "500"};
     
+    int benchmarkGroup = 0; // incremented for each one
+    int classGroup = 0; // incremented at each class change
+    
     // java.util baseline
-    toRun.add(new BenchmarkCase(JavaUtilConcurrentExecutorExecuteBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                JavaUtilConcurrentExecutorExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(JavaUtilConcurrentSchedulerExecuteBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, // we count all java.util.concurrent in the same class group
+                                JavaUtilConcurrentSchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(JavaUtilConcurrentSchedulerRecurringBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                JavaUtilConcurrentSchedulerRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(JavaUtilConcurrentSchedulerScheduleBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                JavaUtilConcurrentSchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
+    if (! INCLUDE_JAVA_BASELINE) {
+      // we must clear so that the benchmarkGroup and classGroup are still what we expect
+      toRun.clear();
+    }
     
     // top level schedulers
-    toRun.add(new BenchmarkCase(PrioritySchedulerExecuteBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                PrioritySchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(PrioritySchedulerRecurringBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(PrioritySchedulerScheduleBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(SingleThreadSchedulerExecuteBenchmark.class, noArgs));
-    toRun.add(new BenchmarkCase(SingleThreadSchedulerRecurringBenchmark.class, noArgs));
-    toRun.add(new BenchmarkCase(SingleThreadSchedulerScheduleBenchmark.class, noArgs));
-    toRun.add(new BenchmarkCase(NoThreadSchedulerBenchmark.class, new String[]{"10", "50"}));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                SingleThreadSchedulerExecuteBenchmark.class, noArgs));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerRecurringBenchmark.class, noArgs));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerScheduleBenchmark.class, noArgs));
+    // since NoThreadScheduler is the basis of SingleThreadScheduler they are in the same class group
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                NoThreadSchedulerBenchmark.class, new String[]{"10", "50"}));
     
     // scheduler wrappers
-    toRun.add(new BenchmarkCase(SubmitterSchedulerLimiterExecuteBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                SubmitterSchedulerLimiterExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(SubmitterSchedulerLimiterRecurringBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SubmitterSchedulerLimiterRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(SubmitterSchedulerLimiterScheduleBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SubmitterSchedulerLimiterScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(KeyedLimiterExecuteBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                KeyedLimiterExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(KeyedLimiterRecurringBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyedLimiterRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(KeyedLimiterScheduleBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyedLimiterScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(KeyDistributedSchedulerExecuteBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                KeyDistributedSchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(KeyDistributedSchedulerRecurringBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedSchedulerRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(KeyDistributedSchedulerScheduleBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedSchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(KeyDistributedExecutorSimpleBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedExecutorSimpleBenchmark.class, 
                                 new String[][]{new String[]{"true", "false"}, 
                                                new String[]{"Execute", "Schedule"}}));
-    toRun.add(new BenchmarkCase(KeyDistributedExecutorManySubmitterBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedExecutorManySubmitterBenchmark.class, 
                                 new String[][]{new String[]{"false 10", "false 50", "false 100", "false 200", 
                                                             "true 10",  "true 50",  "true 100",  "true 200"}, 
                                                new String[]{"Execute10",  "Execute50",  "Execute100",  "Execute200",
                                                             "Schedule10", "Schedule50", "Schedule100", "Schedule200"}}));
-    toRun.add(new BenchmarkCase(KeyDistributedExecutorUniqueKeyBenchmark.class, 
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedExecutorUniqueKeyBenchmark.class, 
                                 new String[][]{new String[]{"false 2", "false 4", "false 8", "false 16", 
                                                             "true 2",  "true 4",  "true 8",  "true 16"}, 
                                                new String[]{"Execute2",  "Execute4",  "Execute8", "Execute16", 
@@ -90,44 +128,110 @@ public class BenchmarkCollectionRunner {
     BENCHMARKS_TO_RUN = Collections.unmodifiableList(toRun);
   }
   
-  public static void main(String[] args) throws IOException, InterruptedException {
-    // TODO - verify arguments and print helpful messages
+  private static void printUsage() {
+    System.err.println("java -cp <classpath> " + BenchmarkCollectionRunner.class + 
+                         " <classpath> <path_to_source_dir> [<dbHost> <dbUser> <dbPass> <dbName>]");
+  }
+  
+  public static void main(String[] args) throws Exception {
+    if (args.length < 2) {
+      System.err.println("Must provide at a minimum the classpath used for benchmarks, " + 
+                           "and the source directory that is being tested");
+      printUsage();
+      System.exit(-1);
+    }
     String benchmarkClasspath = args[0];
     File sourceFolder = new File(args[1]);
     if (! sourceFolder.exists() || ! sourceFolder.isDirectory()) {
       System.err.println("Provide valid source directory: " + args[1]);
-      System.exit(-1);
+      printUsage();
+      System.exit(-2);
     }
 
-    String[] gitCommand = {"/bin/bash", "-c", 
+    String[] gitCommitCommand = {SHELL, "-c", 
                            "cd " + sourceFolder.getAbsolutePath() + " ; git log | head -n 1"};
-    ExecResult gitResult = runCommand(gitCommand);
+    ExecResult gitCommitResult = runCommand(gitCommitCommand);
     String commitPrefix = "commit ";
-    if (! StringUtils.isNullOrEmpty(gitResult.stdErr) || 
-        StringUtils.isNullOrEmpty(gitResult.stdOut) || ! gitResult.stdOut.startsWith(commitPrefix)) {
+    if (! StringUtils.isNullOrEmpty(gitCommitResult.stdErr) || 
+        StringUtils.isNullOrEmpty(gitCommitResult.stdOut) || ! gitCommitResult.stdOut.startsWith(commitPrefix)) {
       System.err.println("Unable to detect git commit");
-      System.err.println(gitResult.stdErr);
-      System.err.println(gitResult.stdOut);
+      System.err.println(gitCommitResult.stdErr);
+      System.err.println(gitCommitResult.stdOut);
       System.exit(1);
     }
-    String hash = gitResult.stdOut.substring(commitPrefix.length());
-    System.out.println("Testing hash: '" + hash + "'");
+    final String hash = gitCommitResult.stdOut.substring(commitPrefix.length());
     
-    for (BenchmarkCase bc : BENCHMARKS_TO_RUN) {
+    String[] gitBranchCommand = {SHELL, "-c", 
+                                 "cd " + sourceFolder.getAbsolutePath() + " ; git rev-parse --abbrev-ref HEAD"};
+    ExecResult gitBranchResult = runCommand(gitBranchCommand);
+    if (! StringUtils.isNullOrEmpty(gitBranchResult.stdErr) || StringUtils.isNullOrEmpty(gitBranchResult.stdOut)) {
+      System.err.println("Unable to detect git branch");
+      System.err.println(gitCommitResult.stdErr);
+      System.err.println(gitCommitResult.stdOut);
+      System.exit(2);
+    }
+    final String branchName;
+    if (gitBranchResult.stdOut.equals("HEAD")) {
+      String[] gitTagCommand = {SHELL, "-c", 
+                                "cd " + sourceFolder.getAbsolutePath() + " ; git describe --abbrev=0 --tags"};
+      ExecResult gitTagResult = runCommand(gitTagCommand);
+      if (! StringUtils.isNullOrEmpty(gitTagResult.stdErr) || StringUtils.isNullOrEmpty(gitTagResult.stdOut)) {
+        System.err.println("Unable to detect git tag");
+        System.err.println(gitTagResult.stdErr);
+        System.err.println(gitTagResult.stdOut);
+        System.exit(3);
+      }
+      branchName = gitTagResult.stdOut;
+    } else {
+      branchName = gitBranchResult.stdOut;
+    }
+    
+    System.out.println("Testing '" + branchName + "' hash: '" + hash + "'");
+    
+    DBI dbi = null;
+    if (args.length == 6) {
+      Class.forName("org.postgresql.Driver");
+      dbi = new DBI("jdbc:postgresql://" + args[2] + '/' + args[5],
+                    args[3], args[4]);
+    }
+    for (final BenchmarkCase bc : BENCHMARKS_TO_RUN) {
+      final BenchmarkResult[] results = new BenchmarkResult[bc.executionArgs[0].length];
       for (int i = 0; i < bc.executionArgs[0].length; i++) {
-        BenchmarkResult result = runBenchmarkSet(benchmarkClasspath, 
-                                                 bc.benchmarkClass, 
-                                                 bc.executionArgs[0][i]);
-        if (StringUtils.isNullOrEmpty(result.errorOutput)) {
+        results[i] = runBenchmarkSet(benchmarkClasspath, 
+                                     bc.benchmarkClass, bc.executionArgs[0][i]);
+        if (StringUtils.isNullOrEmpty(results[i].errorOutput)) {
           String ident = bc.benchmarkClass.getSimpleName() + bc.executionArgs[1][i] + ": ";
-          System.out.println(StringUtils.padEnd(ident, 60, ' ') + result.resultValue);
+          int executionsPerSecond = (results[i].resultValue / (AbstractBenchmark.RUN_TIME / 1000));
+          System.out.println(StringUtils.padEnd(ident, 60, ' ') + executionsPerSecond);
         } else {
           System.out.println("Error in running test: " + 
                                bc.benchmarkClass.getSimpleName() + bc.executionArgs[1][i]);
-          System.out.println(result.errorOutput);
-          System.exit(2);
+          System.out.println(results[i].errorOutput);
+          if (EXIT_ON_BENCHMARK_FAILURE) {
+            System.exit(5);
+          }
         }
-        // TODO - report results with hash
+      }
+      if (dbi != null) {
+        dbi.inTransaction(new TransactionCallback<Void>() {
+          @Override
+          public Void inTransaction(Handle h, TransactionStatus arg1) throws Exception {
+            BenchmarkDbi benchmarkDbi = h.attach(BenchmarkDbi.class);
+            
+            int nextBenchmarkGroupRunId = 1 + benchmarkDbi.getLastBenchmarkGroupRunId(bc.benchmarkGroup);
+            
+            for (int i = 0; i < results.length; i++) {
+              BenchmarkResult br = results[i];
+              if (StringUtils.isNullOrEmpty(br.errorOutput)) {
+                String ident = bc.benchmarkClass.getSimpleName() + bc.executionArgs[1][i];
+                benchmarkDbi.addRecord(bc.benchmarkGroup, bc.classGroup, nextBenchmarkGroupRunId, 
+                                       hash, branchName, ident, results[i].resultValue, AbstractBenchmark.RUN_TIME);
+              }
+            }
+            h.commit();
+            return null;
+          }
+        });
       }
     }
   }
@@ -150,13 +254,13 @@ public class BenchmarkCollectionRunner {
     for (int i : runResults) {
       total += i;
     }
-    return new BenchmarkResult(benchmarkClass, total / runResults.size());
+    return new BenchmarkResult(total / runResults.size());
   }
   
   private static BenchmarkResult runBenchmark(String classpath, 
                                               Class<? extends AbstractBenchmark> benchmarkClass, 
                                               String executionArgs) {
-    String[] command = {"/bin/bash", "-c", 
+    String[] command = {SHELL, "-c", 
                         JAVA_EXECUTE_CMD + "-cp " + classpath + ' ' + 
                           benchmarkClass.getName() + ' ' + executionArgs};
     try {
@@ -166,15 +270,15 @@ public class BenchmarkCollectionRunner {
         if (delimIndex > 0) {
           delimIndex += AbstractBenchmark.OUTPUT_DELIM.length();
           int runVal = Integer.parseInt(runResult.stdOut.substring(delimIndex));
-          return new BenchmarkResult(benchmarkClass, runVal);
+          return new BenchmarkResult(runVal);
         } else {
-          return new BenchmarkResult(benchmarkClass, "Invalid benchmark output: " + runResult.stdOut);
+          return new BenchmarkResult("Invalid benchmark output: " + runResult.stdOut);
         }
       } else {
-        return new BenchmarkResult(benchmarkClass, runResult.stdErr);
+        return new BenchmarkResult(runResult.stdErr);
       }
     } catch (Exception e) {
-      return new BenchmarkResult(benchmarkClass, ExceptionUtils.stackToString(e));
+      return new BenchmarkResult(ExceptionUtils.stackToString(e));
     }
   }
   
@@ -207,35 +311,38 @@ public class BenchmarkCollectionRunner {
   }
   
   private static class BenchmarkResult {
-    // TODO - should we record the class tested here or not?
-    public final Class<? extends AbstractBenchmark> benchmarkClass;
     public final int resultValue;
     public final String errorOutput;
     
-    public BenchmarkResult(Class<? extends AbstractBenchmark> benchmarkClass, int resultValue) {
-      this.benchmarkClass = benchmarkClass;
+    public BenchmarkResult(int resultValue) {
       this.resultValue = resultValue;
       this.errorOutput = "";
     }
     
-    public BenchmarkResult(Class<? extends AbstractBenchmark> benchmarkClass, String errorOutput) {
-      this.benchmarkClass = benchmarkClass;
+    public BenchmarkResult(String errorOutput) {
       this.resultValue = -1;
       this.errorOutput = StringUtils.nullToEmpty(errorOutput);
     }
   }
   
   private static class BenchmarkCase {
+    public final int benchmarkGroup;
+    public final int classGroup;
     public final Class<? extends AbstractBenchmark> benchmarkClass;
     public final String[][] executionArgs;
     
-    public BenchmarkCase(Class<? extends AbstractBenchmark> benchmarkClass, 
+    public BenchmarkCase(int benchmarkGroup, int classGroup, 
+                         Class<? extends AbstractBenchmark> benchmarkClass, 
                          String[] executionArgs) {
-      this(benchmarkClass, new String[][]{executionArgs, executionArgs});
+      this(benchmarkGroup, classGroup, benchmarkClass, 
+           new String[][]{executionArgs, executionArgs});
     }
     
-    public BenchmarkCase(Class<? extends AbstractBenchmark> benchmarkClass, 
+    public BenchmarkCase(int benchmarkGroup, int classGroup, 
+                         Class<? extends AbstractBenchmark> benchmarkClass, 
                          String[][] executionArgs) {
+      this.benchmarkGroup = benchmarkGroup;
+      this.classGroup = classGroup;
       this.benchmarkClass = benchmarkClass;
       this.executionArgs = executionArgs;
     }

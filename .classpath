@@ -3,5 +3,8 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/threadly"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="build/dependencies/jdbi-2.63.1.jar"/>
+	<classpathentry kind="lib" path="build/dependencies/json-20140107.jar"/>
+	<classpathentry kind="lib" path="build/dependencies/postgresql-9.4-1202-jdbc41.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
