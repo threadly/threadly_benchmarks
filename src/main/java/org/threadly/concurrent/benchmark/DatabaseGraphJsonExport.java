@@ -1,9 +1,8 @@
 package org.threadly.concurrent.benchmark;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,8 +57,8 @@ public class DatabaseGraphJsonExport {
         // TODO - generate json
         
         File outputFile = new File(outputFolder, classGroupIdentifier + ".json");
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile))) {
-          // TODO - dump json to file
+        try (Writer writer = new FileWriter(outputFile)) {
+          jsonRoot.write(writer);
         }
       }
     } finally {

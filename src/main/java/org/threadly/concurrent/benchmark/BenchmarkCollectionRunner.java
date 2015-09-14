@@ -228,7 +228,7 @@ public class BenchmarkCollectionRunner {
                                        hash, branchName, ident, results[i].resultValue, AbstractBenchmark.RUN_TIME);
               }
             }
-            h.commit();
+            
             return null;
           }
         });

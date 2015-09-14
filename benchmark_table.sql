@@ -17,7 +17,7 @@ create table run_results (
   duration int NOT NULL CHECK (duration > 0),
 
   FOREIGN KEY (class_group_id) REFERENCES class_group_identifier (id), 
-  PRIMARY KEY (benchmark_group_id, benchmark_group_run_id) 
+  PRIMARY KEY (benchmark_group_id, benchmark_group_run_id, benchmark_name) 
 );
 
 INSERT INTO class_group_identifier (id, name) VALUES (1, 'JavaUtilBaseline');
