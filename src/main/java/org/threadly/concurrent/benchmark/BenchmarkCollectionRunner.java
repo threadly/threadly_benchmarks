@@ -20,7 +20,7 @@ import org.threadly.util.StringUtils;
 
 public class BenchmarkCollectionRunner {
   private static final int RUN_COUNT = 5;
-  private static final boolean INCLUDE_JAVA_BASELINE = false;
+  private static final boolean INCLUDE_JAVA_BASELINE = true;
   private static final boolean EXIT_ON_BENCHMARK_FAILURE = false;
   private static final boolean DISCARD_FIRST_RUN = false;
   private static final String SHELL = "bash";
@@ -298,7 +298,7 @@ public class BenchmarkCollectionRunner {
       }
     } catch (IOException | InterruptedException e) {
       if (p != null) {
-        p.destroyForcibly();
+        p.destroy();
       }
       if (stdOutFuture != null) {
         stdOutFuture.cancel(true);
