@@ -1,7 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
 public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedulerBenchmark {
-  private static final int SCHEDULE_DELAY = 10;
+  private static final int SCHEDULE_DELAY = 5;
   
   @Override
   protected Runnable makeRunnable(int id) {
@@ -23,12 +23,10 @@ public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedu
     @Override
     public void run() {
       if (run) {
-      long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         countArray.incrementAndGet(index);
         
-        while (System.currentTimeMillis() - startTime < THREAD_RUN_TIME) {
-          // spin loop
-        }
+        doThreadWork(startTime);
       }
     }
     

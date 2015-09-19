@@ -19,9 +19,8 @@ public abstract class AbstractSchedulerExecuteBenchmark extends AbstractSchedule
         long startTime = System.currentTimeMillis();
         countArray.incrementAndGet(index);
 
-        while (System.currentTimeMillis() - startTime < THREAD_RUN_TIME) {
-          // spin loop
-        }
+        doThreadWork(startTime);
+        
         getScheduler().execute(this);
       }
     }

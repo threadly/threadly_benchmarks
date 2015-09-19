@@ -10,12 +10,13 @@ import org.threadly.util.Clock;
 import org.threadly.util.debug.Profiler;
 
 public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
-  protected static final int RUNNABLE_COUNT = 1000;
-  protected static final int RUNNABLE_ADD_TIME = 1000 * 5 * 1;
-  protected static final int THREAD_RUN_TIME = 20;
+  protected static final int RUNNABLE_COUNT = 10000;
+  protected static final int RUNNABLE_PER_COUNTER = 2; // higher numbers use less ram but may have contention
+  protected static final int RUNNABLE_ADD_TIME = 1000 * 5;
+  protected static final int THREAD_RUN_TIME = 2;
   protected static final boolean RUN_PROFILER = false;
   
-  protected final AtomicIntegerArray countArray = new AtomicIntegerArray(RUNNABLE_COUNT);
+  protected final AtomicIntegerArray countArray = new AtomicIntegerArray(RUNNABLE_COUNT / RUNNABLE_PER_COUNTER);
   protected volatile boolean run = true;
   
   protected abstract SubmitterScheduler getScheduler();
@@ -33,7 +34,11 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     
     List<Runnable> runnables = new ArrayList<Runnable>(RUNNABLE_COUNT);
     for (int i = 0; i < RUNNABLE_COUNT; i++) {
-      runnables.add(makeRunnable(i));
+      int index = i;
+      while (index >= countArray.length()) {
+        index -= countArray.length();
+      }
+      runnables.add(makeRunnable(index));
     }
     Profiler p;
     if (RUN_PROFILER) {
@@ -61,7 +66,7 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     
     int total = 0;
     StringBuilder result = new StringBuilder();
-    for(int i = 0; i < RUNNABLE_COUNT; i++) {
+    for(int i = 0; i < countArray.length(); i++) {
       if (i != 0) {
         result.append(", ");
       }
@@ -73,6 +78,30 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     
     if (RUN_PROFILER) {
       p.dump(System.out);
+    }
+  }
+  
+  /**
+   * Small function to simulate threads actually doing something.
+   * 
+   * @param startReferenceTime Time thread started running (should be collected at absolute start)
+   */
+  protected void doThreadWork(long startReferenceTime) {
+    int i = 0; // used to run 100 loops per clock check
+    while (THREAD_RUN_TIME > 0) {
+      // do some fake work, just to slow down clock calls without yielding the thread
+      if (i % 2 == 0) {
+        Math.pow(1024, 1024);
+      } else {
+        Math.log1p(1024);
+      }
+      if (++i == 100) {
+        if (System.currentTimeMillis() - startReferenceTime >= THREAD_RUN_TIME) {
+          break;
+        } else {
+          i = 0;
+        }
+      }
     }
   }
 }

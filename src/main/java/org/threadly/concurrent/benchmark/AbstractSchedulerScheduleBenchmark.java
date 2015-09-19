@@ -1,7 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
 public abstract class AbstractSchedulerScheduleBenchmark extends AbstractSchedulerBenchmark {
-  private static final int SCHEDULE_DELAY = 10;
+  private static final int SCHEDULE_DELAY = 5;
   private static final boolean DIFFER_SCHEDULE_TIME = false;
   
   @Override
@@ -29,9 +29,7 @@ public abstract class AbstractSchedulerScheduleBenchmark extends AbstractSchedul
           scheduleDelay = SCHEDULE_DELAY;
         }
         
-        while (System.currentTimeMillis() - startTime < THREAD_RUN_TIME) {
-          // spin loop
-        }
+        doThreadWork(startTime);
         
         getScheduler().schedule(this, scheduleDelay);
       }
