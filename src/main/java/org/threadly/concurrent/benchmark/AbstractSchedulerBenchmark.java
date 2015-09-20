@@ -12,7 +12,7 @@ import org.threadly.util.debug.Profiler;
 public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
   protected static final int RUNNABLE_COUNT = 10000;
   protected static final int RUNNABLE_PER_COUNTER = 2; // higher numbers use less ram but may have contention
-  protected static final int RUNNABLE_ADD_TIME = 1000 * 5;
+  protected static final int RUNNABLE_ADD_TIME = 1000 * 10;
   protected static final int THREAD_RUN_TIME = 2;
   protected static final boolean RUN_PROFILER = false;
   
