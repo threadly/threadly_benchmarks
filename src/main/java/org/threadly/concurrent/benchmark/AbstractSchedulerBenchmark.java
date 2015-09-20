@@ -87,6 +87,7 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
    * @param startReferenceTime Time thread started running (should be collected at absolute start)
    */
   protected void doThreadWork(long startReferenceTime) {
+    int timeCheckIterations = 100;  // start high then decrease after first run
     int i = 0; // used to run 100 loops per clock check
     while (THREAD_RUN_TIME > 0) {
       // do some fake work, just to slow down clock calls without yielding the thread
@@ -95,10 +96,11 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
       } else {
         Math.log1p(1024);
       }
-      if (++i == 100) {
+      if (++i == timeCheckIterations) {
         if (System.currentTimeMillis() - startReferenceTime >= THREAD_RUN_TIME) {
           break;
         } else {
+          timeCheckIterations = 10;
           i = 0;
         }
       }
