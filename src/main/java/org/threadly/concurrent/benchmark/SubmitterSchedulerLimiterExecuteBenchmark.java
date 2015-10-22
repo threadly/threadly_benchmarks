@@ -8,7 +8,8 @@ import org.threadly.concurrent.limiter.SubmitterSchedulerLimiter;
 public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {
     try {
-      new SubmitterSchedulerLimiterExecuteBenchmark(Integer.parseInt(args[0])).runTest();
+      new SubmitterSchedulerLimiterExecuteBenchmark(Integer.parseInt(args[0]), 
+                                                    Integer.parseInt(args[1])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
@@ -19,7 +20,9 @@ public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractScheduler
   protected final PriorityScheduler originalExecutor;
   protected final SubmitterScheduler executor;
   
-  public SubmitterSchedulerLimiterExecuteBenchmark(int poolSize) {
+  public SubmitterSchedulerLimiterExecuteBenchmark(int threadRunTime, int poolSize) {
+    super(threadRunTime);
+    
     // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
     originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
     originalExecutor.prestartAllThreads();

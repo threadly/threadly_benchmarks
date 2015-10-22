@@ -1,8 +1,21 @@
 package org.threadly.concurrent.benchmark;
 
+import org.threadly.util.Clock;
+
 public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedulerBenchmark {
-  private static final int SCHEDULE_DELAY = 5;
+  private final int scheduleDelay;
   
+  protected AbstractSchedulerRecurringBenchmark(int threadRunTime) {
+    super(threadRunTime);
+    if (threadRunTime < 1) {
+      scheduleDelay = 1;
+    } else if (threadRunTime < 2) {
+      scheduleDelay = 2;
+    } else {
+      scheduleDelay = 5;
+    }
+  }
+
   @Override
   protected Runnable makeRunnable(int id) {
     return new TestRunnable(id);
@@ -10,7 +23,7 @@ public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedu
   
   @Override
   protected void initialSchedule(Runnable r, long delayInMs) {
-    getScheduler().scheduleWithFixedDelay(r, delayInMs, SCHEDULE_DELAY);
+    getScheduler().scheduleWithFixedDelay(r, delayInMs, scheduleDelay);
   }
   
   private class TestRunnable implements Runnable {
@@ -23,7 +36,7 @@ public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedu
     @Override
     public void run() {
       if (run) {
-        long startTime = System.currentTimeMillis();
+        long startTime = threadRunTime > 0 ? Clock.accurateTimeMillis() : -1;
         countArray.incrementAndGet(index);
         
         doThreadWork(startTime);

@@ -8,7 +8,8 @@ import org.threadly.concurrent.SubmitterScheduler;
 public class JavaUtilConcurrentSchedulerScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
   public static void main(String args[]) {
     try {
-      new JavaUtilConcurrentSchedulerScheduleBenchmark(Integer.parseInt(args[0])).runTest();
+      new JavaUtilConcurrentSchedulerScheduleBenchmark(Integer.parseInt(args[0]), 
+                                                       Integer.parseInt(args[1])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
@@ -19,7 +20,9 @@ public class JavaUtilConcurrentSchedulerScheduleBenchmark extends AbstractSchedu
   protected final ScheduledThreadPoolExecutor originalExecutor;
   protected final SubmitterScheduler executor;
   
-  public JavaUtilConcurrentSchedulerScheduleBenchmark(int poolSize) {
+  public JavaUtilConcurrentSchedulerScheduleBenchmark(int threadRunTime, int poolSize) {
+    super(threadRunTime);
+    
     originalExecutor = new ScheduledThreadPoolExecutor(poolSize);
     originalExecutor.prestartAllCoreThreads();
     executor = new ScheduledExecutorServiceWrapper(originalExecutor);

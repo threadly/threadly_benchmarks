@@ -12,12 +12,16 @@ public class SingleThreadSchedulerScheduleBenchmark extends AbstractSchedulerSch
   
   public static void main(String args[]) {
     try {
-      new SingleThreadSchedulerScheduleBenchmark().runTest();
+      new SingleThreadSchedulerScheduleBenchmark(Integer.parseInt(args[0])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
       System.exit(1);
     }
+  }
+  
+  protected SingleThreadSchedulerScheduleBenchmark(int threadRunTime) {
+    super(threadRunTime);
   }
 
   @Override

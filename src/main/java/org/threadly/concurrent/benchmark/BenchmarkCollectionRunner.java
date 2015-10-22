@@ -3,6 +3,9 @@ package org.threadly.concurrent.benchmark;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +27,7 @@ public class BenchmarkCollectionRunner {
   private static final boolean EXIT_ON_BENCHMARK_FAILURE = false;
   private static final boolean DISCARD_FIRST_RUN = false;
   private static final String SHELL = "bash";
-  private static final String JAVA_EXECUTE_CMD = /*"nice -n -10" +*/ "/usr/bin/java -Xmx2560m -Xms2048m -Xss256k ";
+  private static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx2560m -Xms2048m -Xss256k ";
   private static final PriorityScheduler SCHEDULER;
   private static final List<BenchmarkCase> BENCHMARKS_TO_RUN;
   
@@ -36,9 +39,23 @@ public class BenchmarkCollectionRunner {
     ArrayList<BenchmarkCase> toRun = new ArrayList<>();
     
     String[] noArgs = new String[]{""};
-    String[] executeScheduleRecurringThreadCases = new String[]{"4", "10", "20", "50", "100", "150", 
-                                                                "200", "250", "500", "750", "1000", 
-                                                                "1500", "2000", "2500"};
+    String[][] executeScheduleRecurringThreadCases = new String[][]{{"2 4", "2 10", "2 20", "2 50", 
+                                                                     "2 100", "2 150", "2 200", "2 250", 
+                                                                     "2 500", "2 750", "2 1000", 
+                                                                     "2 1500", "2 2000", "2 2500", 
+                                                                     "0 4", "0 10", "0 20", "0 50", 
+                                                                     "0 100", "0 150", "0 200", "0 250", 
+                                                                     "0 500", "0 750", "0 1000", 
+                                                                     "0 1500", "0 2000", "0 2500"}, 
+                                                                    
+                                                                    {"4", "10", "20", "50", 
+                                                                     "100", "150", "200", "250", 
+                                                                     "500", "750", "1000", 
+                                                                     "1500", "2000", "2500", 
+                                                                     "NoOp4", "NoOp10", "NoOp20", "NoOp50", 
+                                                                     "NoOp100", "NoOp150", "NoOp200", "NoOp250", 
+                                                                     "NoOp500", "NoOp750", "NoOp1000", 
+                                                                     "NoOp1500", "NoOp2000", "NoOp2500"}};
     
     int benchmarkGroup = 0; // incremented for each one
     int classGroup = 0; // incremented at each class change
@@ -111,20 +128,20 @@ public class BenchmarkCollectionRunner {
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorSimpleBenchmark.class, 
-                                new String[][]{new String[]{"true", "false"}, 
-                                               new String[]{"Execute", "Schedule"}}));
+                                new String[][]{{"true", "false"}, 
+                                               {"Execute", "Schedule"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorManySubmitterBenchmark.class, 
-                                new String[][]{new String[]{"false 10", "false 50", "false 100", "false 200", 
-                                                            "true 10",  "true 50",  "true 100",  "true 200"}, 
-                                               new String[]{"Execute10",  "Execute50",  "Execute100",  "Execute200",
-                                                            "Schedule10", "Schedule50", "Schedule100", "Schedule200"}}));
+                                new String[][]{{"false 10", "false 50", "false 100", "false 200", 
+                                                "true 10",  "true 50",  "true 100",  "true 200"}, 
+                                               {"Execute10",  "Execute50",  "Execute100",  "Execute200",
+                                                "Schedule10", "Schedule50", "Schedule100", "Schedule200"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorUniqueKeyBenchmark.class, 
-                                new String[][]{new String[]{"false 2", "false 4", "false 8", "false 16", 
-                                                            "true 2",  "true 4",  "true 8",  "true 16"}, 
-                                               new String[]{"Execute2",  "Execute4",  "Execute8", "Execute16", 
-                                                            "Schedule2", "Schedule4", "Schedule8", "Schedule16"}}));
+                                new String[][]{{"false 2", "false 4", "false 8", "false 16", 
+                                                "true 2",  "true 4",  "true 8",  "true 16"}, 
+                                               {"Execute2",  "Execute4",  "Execute8", "Execute16", 
+                                                "Schedule2", "Schedule4", "Schedule8", "Schedule16"}}));
     
     toRun.trimToSize();
     BENCHMARKS_TO_RUN = Collections.unmodifiableList(toRun);
@@ -151,7 +168,7 @@ public class BenchmarkCollectionRunner {
     }
 
     String[] gitCommitCommand = {SHELL, "-c", 
-                           "cd " + sourceFolder.getAbsolutePath() + " ; git log | head -n 1"};
+                                 "cd " + sourceFolder.getAbsolutePath() + " ; git log | head -n 1"};
     ExecResult gitCommitResult = runCommand(gitCommitCommand);
     String commitPrefix = "commit ";
     if (! StringUtils.isNullOrEmpty(gitCommitResult.stdErr) || 
@@ -203,7 +220,7 @@ public class BenchmarkCollectionRunner {
                                      bc.benchmarkClass, bc.executionArgs[0][i]);
         if (StringUtils.isNullOrEmpty(results[i].errorOutput)) {
           String ident = bc.benchmarkClass.getSimpleName() + bc.executionArgs[1][i] + ": ";
-          int executionsPerSecond = (results[i].resultValue / (AbstractBenchmark.RUN_TIME / 1000));
+          long executionsPerSecond = (results[i].resultValue / (AbstractBenchmark.RUN_TIME / 1000));
           System.out.println(StringUtils.padEnd(ident, 60, ' ') + executionsPerSecond);
         } else {
           System.out.println("Error in running test: " + 
@@ -225,9 +242,11 @@ public class BenchmarkCollectionRunner {
             for (int i = 0; i < results.length; i++) {
               BenchmarkResult br = results[i];
               if (StringUtils.isNullOrEmpty(br.errorOutput)) {
-                String ident = bc.benchmarkClass.getSimpleName() + bc.executionArgs[1][i];
+                String ident = bc.benchmarkClass.getSimpleName().replaceAll("Benchmark", "") + 
+                                 bc.executionArgs[1][i];
                 benchmarkDbi.addRecord(bc.benchmarkGroup, bc.classGroup, nextBenchmarkGroupRunId, 
-                                       hash, branchName, ident, results[i].resultValue, AbstractBenchmark.RUN_TIME);
+                                       hash, branchName, ident, results[i].resultValue, 
+                                       AbstractBenchmark.RUN_TIME);
               }
             }
             
@@ -241,22 +260,20 @@ public class BenchmarkCollectionRunner {
   private static BenchmarkResult runBenchmarkSet(String classpath, 
                                                  Class<? extends AbstractBenchmark> benchmarkClass, 
                                                  String executionArgs) {
-    List<Integer> runResults = new ArrayList<>(RUN_COUNT);
-    for (int i = 0; i < RUN_COUNT; i++) {
+    BigDecimal totalExecutions = new BigDecimal(0, new MathContext(2048));
+    int runCount = 1;
+    for (; runCount <= RUN_COUNT; runCount++) {
       BenchmarkResult br = runBenchmark(classpath, benchmarkClass, executionArgs);
       if (! br.errorOutput.isEmpty()) {
         return br;
       }
-      if (i > 0 || ! DISCARD_FIRST_RUN) {
-        runResults.add(br.resultValue);
+      if (runCount > 1 || ! DISCARD_FIRST_RUN) {
+        totalExecutions = totalExecutions.add(new BigDecimal(br.resultValue));
       }
     }
     
-    int total = 0;
-    for (int i : runResults) {
-      total += i;
-    }
-    return new BenchmarkResult(total / runResults.size());
+    return new BenchmarkResult(totalExecutions.divide(new BigDecimal(runCount), 
+                                                      RoundingMode.HALF_UP).longValue());
   }
   
   private static BenchmarkResult runBenchmark(String classpath, 
@@ -265,13 +282,14 @@ public class BenchmarkCollectionRunner {
     String[] command = {SHELL, "-c", 
                         JAVA_EXECUTE_CMD + "-cp " + classpath + ' ' + 
                           benchmarkClass.getName() + ' ' + executionArgs};
+    System.gc();
     try {
       ExecResult runResult = runCommand(command);
       if (StringUtils.isNullOrEmpty(runResult.stdErr)) {
         int delimIndex = runResult.stdOut.indexOf(AbstractBenchmark.OUTPUT_DELIM);
         if (delimIndex > 0) {
           delimIndex += AbstractBenchmark.OUTPUT_DELIM.length();
-          int runVal = Integer.parseInt(runResult.stdOut.substring(delimIndex));
+          long runVal = Long.parseLong(runResult.stdOut.substring(delimIndex));
           return new BenchmarkResult(runVal);
         } else {
           return new BenchmarkResult("Invalid benchmark output: " + runResult.stdOut);
@@ -313,10 +331,10 @@ public class BenchmarkCollectionRunner {
   }
   
   private static class BenchmarkResult {
-    public final int resultValue;
+    public final long resultValue;
     public final String errorOutput;
     
-    public BenchmarkResult(int resultValue) {
+    public BenchmarkResult(long resultValue) {
       this.resultValue = resultValue;
       this.errorOutput = "";
     }

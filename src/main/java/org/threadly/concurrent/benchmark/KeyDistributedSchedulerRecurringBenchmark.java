@@ -8,7 +8,8 @@ import org.threadly.concurrent.TaskPriority;
 public class KeyDistributedSchedulerRecurringBenchmark extends AbstractSchedulerRecurringBenchmark {
   public static void main(String args[]) {
     try {
-      new KeyDistributedSchedulerRecurringBenchmark(Integer.parseInt(args[0])).runTest();
+      new KeyDistributedSchedulerRecurringBenchmark(Integer.parseInt(args[0]), 
+                                                    Integer.parseInt(args[1])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
@@ -19,7 +20,9 @@ public class KeyDistributedSchedulerRecurringBenchmark extends AbstractScheduler
   protected final PriorityScheduler originalExecutor;
   protected final KeyDistributedScheduler keyScheduler;
   
-  public KeyDistributedSchedulerRecurringBenchmark(int poolSize) {
+  public KeyDistributedSchedulerRecurringBenchmark(int threadRunTime, int poolSize) {
+    super(threadRunTime);
+    
     originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
     originalExecutor.prestartAllThreads();
     keyScheduler = new KeyDistributedScheduler(originalExecutor);

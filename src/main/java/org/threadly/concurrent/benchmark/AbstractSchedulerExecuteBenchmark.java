@@ -1,6 +1,12 @@
 package org.threadly.concurrent.benchmark;
 
+import org.threadly.util.Clock;
+
 public abstract class AbstractSchedulerExecuteBenchmark extends AbstractSchedulerBenchmark {
+  protected AbstractSchedulerExecuteBenchmark(int threadRunTime) {
+    super(threadRunTime);
+  }
+
   @Override
   protected Runnable makeRunnable(int id) {
     return new TestRunnable(id);
@@ -16,7 +22,7 @@ public abstract class AbstractSchedulerExecuteBenchmark extends AbstractSchedule
     @Override
     public void run() {
       if (run) {
-        long startTime = System.currentTimeMillis();
+        long startTime = threadRunTime > 0 ? Clock.accurateTimeMillis() : -1;
         countArray.incrementAndGet(index);
 
         doThreadWork(startTime);

@@ -4,6 +4,7 @@ import org.threadly.concurrent.SingleThreadScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
 
 public class SingleThreadSchedulerExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
+
   protected static final SingleThreadScheduler EXECUTOR;
   
   static {
@@ -12,12 +13,16 @@ public class SingleThreadSchedulerExecuteBenchmark extends AbstractSchedulerExec
   
   public static void main(String args[]) {
     try {
-      new SingleThreadSchedulerExecuteBenchmark().runTest();
+      new SingleThreadSchedulerExecuteBenchmark(Integer.parseInt(args[0])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
       System.exit(1);
     }
+  }
+  
+  protected SingleThreadSchedulerExecuteBenchmark(int threadRunTime) {
+    super(threadRunTime);
   }
 
   @Override

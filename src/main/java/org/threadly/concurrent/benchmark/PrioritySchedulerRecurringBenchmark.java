@@ -7,7 +7,8 @@ import org.threadly.concurrent.TaskPriority;
 public class PrioritySchedulerRecurringBenchmark extends AbstractSchedulerRecurringBenchmark {
   public static void main(String args[]) {
     try {
-      new PrioritySchedulerRecurringBenchmark(Integer.parseInt(args[0])).runTest();
+      new PrioritySchedulerRecurringBenchmark(Integer.parseInt(args[0]), 
+                                              Integer.parseInt(args[1])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
@@ -17,7 +18,9 @@ public class PrioritySchedulerRecurringBenchmark extends AbstractSchedulerRecurr
   
   protected final PriorityScheduler scheduler;
   
-  public PrioritySchedulerRecurringBenchmark(int poolSize) {
+  public PrioritySchedulerRecurringBenchmark(int threadRunTime, int poolSize) {
+    super(threadRunTime);
+    
     // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
     scheduler = new PriorityScheduler(poolSize, TaskPriority.High, 0);
     scheduler.prestartAllThreads();

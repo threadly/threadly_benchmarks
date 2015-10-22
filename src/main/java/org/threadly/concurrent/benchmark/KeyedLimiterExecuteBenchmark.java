@@ -8,7 +8,8 @@ import org.threadly.concurrent.limiter.KeyedSubmitterSchedulerLimiter;
 public class KeyedLimiterExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {
     try {
-      new KeyedLimiterExecuteBenchmark(Integer.parseInt(args[0])).runTest();
+      new KeyedLimiterExecuteBenchmark(Integer.parseInt(args[0]), 
+                                       Integer.parseInt(args[1])).runTest();
       System.exit(0);
     } catch (Throwable t) {
       t.printStackTrace();
@@ -19,7 +20,9 @@ public class KeyedLimiterExecuteBenchmark extends AbstractSchedulerExecuteBenchm
   protected final PriorityScheduler originalExecutor;
   protected final KeyedSubmitterSchedulerLimiter keyLimiter;
   
-  public KeyedLimiterExecuteBenchmark(int poolSize) {
+  public KeyedLimiterExecuteBenchmark(int threadRunTime, int poolSize) {
+    super(threadRunTime);
+    
     originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
     originalExecutor.prestartAllThreads();
     keyLimiter = new KeyedSubmitterSchedulerLimiter(originalExecutor, Integer.MAX_VALUE);

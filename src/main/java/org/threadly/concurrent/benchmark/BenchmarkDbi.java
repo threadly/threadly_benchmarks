@@ -13,7 +13,7 @@ public interface BenchmarkDbi {
                "(:bGroupId, :cGroupId, :gRunId, :hash, :branch_name, :benchmark_name, :executions, :duration)")
   public void addRecord(@Bind("bGroupId") int bGroupId, @Bind("cGroupId") int cGroupId, @Bind("gRunId") int gRunId, 
                         @Bind("hash") String hash, @Bind("branch_name") String branchName, @Bind("benchmark_name") String benchmarkName, 
-                        @Bind("executions") int totalExecutions, @Bind("duration") int duration);
+                        @Bind("executions") long totalExecutions, @Bind("duration") int duration);
   
   @SqlQuery("SELECT MAX(benchmark_group_run_id) FROM run_results WHERE benchmark_group_id = :bGroupId")
   public int getLastBenchmarkGroupRunId(@Bind("bGroupId") int bGroupId);
