@@ -3,9 +3,6 @@ package org.threadly.concurrent.benchmark;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +20,7 @@ import org.threadly.util.StringUtils;
 
 public class BenchmarkCollectionRunner {
   private static final int RUN_COUNT = 5;
-  private static final boolean INCLUDE_JAVA_BASELINE = true;
+  private static final boolean INCLUDE_JAVA_BASELINE = false;
   private static final boolean EXIT_ON_BENCHMARK_FAILURE = false;
   private static final boolean DISCARD_FIRST_RUN = false;
   private static final String SHELL = "bash";
@@ -260,20 +257,22 @@ public class BenchmarkCollectionRunner {
   private static BenchmarkResult runBenchmarkSet(String classpath, 
                                                  Class<? extends AbstractBenchmark> benchmarkClass, 
                                                  String executionArgs) {
-    BigDecimal totalExecutions = new BigDecimal(0, new MathContext(2048));
-    int runCount = 1;
-    for (; runCount <= RUN_COUNT; runCount++) {
+    List<Long> runResults = new ArrayList<>(RUN_COUNT);
+    for (int i = 0; i < RUN_COUNT; i++) {
       BenchmarkResult br = runBenchmark(classpath, benchmarkClass, executionArgs);
       if (! br.errorOutput.isEmpty()) {
         return br;
       }
-      if (runCount > 1 || ! DISCARD_FIRST_RUN) {
-        totalExecutions = totalExecutions.add(new BigDecimal(br.resultValue));
+      if (i > 0 || ! DISCARD_FIRST_RUN) {
+        runResults.add(br.resultValue);
       }
     }
     
-    return new BenchmarkResult(totalExecutions.divide(new BigDecimal(runCount), 
-                                                      RoundingMode.HALF_UP).longValue());
+    double total = 0;
+    for (long i : runResults) {
+      total += i;
+    }
+    return new BenchmarkResult((long)(total / runResults.size()));
   }
   
   private static BenchmarkResult runBenchmark(String classpath, 
