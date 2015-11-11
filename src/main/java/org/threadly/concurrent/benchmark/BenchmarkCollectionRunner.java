@@ -35,7 +35,6 @@ public class BenchmarkCollectionRunner {
     
     ArrayList<BenchmarkCase> toRun = new ArrayList<>();
     
-    String[] noArgs = new String[]{""};
     String[][] executeScheduleRecurringThreadCases = new String[][]{{"2 4", "2 10", "2 20", "2 50", 
                                                                      "2 100", "2 150", "2 200", "2 250", 
                                                                      "2 500", "2 750", "2 1000", 
@@ -85,12 +84,16 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 PrioritySchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
+    String[][] singleThreadSchedulerArgs = new String[][] {{"2", "0"}, {"", "NoOp"}};
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
-                                SingleThreadSchedulerExecuteBenchmark.class, noArgs));
+                                SingleThreadSchedulerExecuteBenchmark.class, 
+                                singleThreadSchedulerArgs));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerRecurringBenchmark.class, noArgs));
+                                SingleThreadSchedulerRecurringBenchmark.class, 
+                                singleThreadSchedulerArgs));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerScheduleBenchmark.class, noArgs));
+                                SingleThreadSchedulerScheduleBenchmark.class, 
+                                singleThreadSchedulerArgs));
     // since NoThreadScheduler is the basis of SingleThreadScheduler they are in the same class group
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 NoThreadSchedulerBenchmark.class, new String[]{"10", "50"}));
