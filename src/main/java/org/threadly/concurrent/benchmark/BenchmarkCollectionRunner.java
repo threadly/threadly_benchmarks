@@ -14,19 +14,20 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionStatus;
 import org.threadly.concurrent.PriorityScheduler;
+import org.threadly.concurrent.benchmark.dao.BenchmarkDao;
 import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.util.ExceptionUtils;
 import org.threadly.util.StringUtils;
 
 public class BenchmarkCollectionRunner {
-  private static final int RUN_COUNT = 5;
-  private static final boolean INCLUDE_JAVA_BASELINE = false;
-  private static final boolean EXIT_ON_BENCHMARK_FAILURE = false;
-  private static final boolean DISCARD_FIRST_RUN = false;
-  private static final String SHELL = "bash";
-  private static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx2560m -Xms2048m -Xss256k ";
-  private static final PriorityScheduler SCHEDULER;
-  private static final List<BenchmarkCase> BENCHMARKS_TO_RUN;
+  protected static final int RUN_COUNT = 5;
+  protected static final boolean INCLUDE_JAVA_BASELINE = true;
+  protected static final boolean EXIT_ON_BENCHMARK_FAILURE = false;
+  protected static final boolean DISCARD_FIRST_RUN = false;
+  protected static final String SHELL = "bash";
+  protected static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx2560m -Xms2048m -Xss256k ";
+  protected static final PriorityScheduler SCHEDULER;
+  protected static final List<BenchmarkCase> BENCHMARKS_TO_RUN;
   
   static {
     SCHEDULER = new PriorityScheduler(2);
@@ -38,20 +39,19 @@ public class BenchmarkCollectionRunner {
     String[][] executeScheduleRecurringThreadCases = new String[][]{{"2 4", "2 10", "2 20", "2 50", 
                                                                      "2 100", "2 150", "2 200", "2 250", 
                                                                      "2 500", "2 750", "2 1000", 
-                                                                     "2 1500", "2 2000", "2 2500", 
-                                                                     "0 4", "0 10", "0 20", "0 50", 
-                                                                     "0 100", "0 150", "0 200", "0 250", 
-                                                                     "0 500", "0 750", "0 1000", 
-                                                                     "0 1500", "0 2000", "0 2500"}, 
-                                                                    
+                                                                     "2 1500", "2 2000", "2 2500"}, 
                                                                     {"4", "10", "20", "50", 
                                                                      "100", "150", "200", "250", 
                                                                      "500", "750", "1000", 
-                                                                     "1500", "2000", "2500", 
-                                                                     "NoOp4", "NoOp10", "NoOp20", "NoOp50", 
-                                                                     "NoOp100", "NoOp150", "NoOp200", "NoOp250", 
-                                                                     "NoOp500", "NoOp750", "NoOp1000", 
-                                                                     "NoOp1500", "NoOp2000", "NoOp2500"}};
+                                                                     "1500", "2000", "2500"}};
+    String[][] executeScheduleRecurringNoOpThreadCases = new String[][]{{"0 4", "0 10", "0 20", "0 50", 
+                                                                         "0 100", "0 150", "0 200", "0 250", 
+                                                                         "0 500", "0 750", "0 1000", 
+                                                                         "0 1500", "0 2000", "0 2500"}, 
+                                                                        {"NoOp4", "NoOp10", "NoOp20", "NoOp50", 
+                                                                         "NoOp100", "NoOp150", "NoOp200", "NoOp250", 
+                                                                         "NoOp500", "NoOp750", "NoOp1000", 
+                                                                         "NoOp1500", "NoOp2000", "NoOp2500"}};
     
     int benchmarkGroup = 0; // incremented for each one
     int classGroup = 0; // incremented at each class change
@@ -60,15 +60,27 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
                                 JavaUtilConcurrentExecutorExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                JavaUtilConcurrentExecutorExecuteBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, // we count all java.util.concurrent in the same class group
                                 JavaUtilConcurrentSchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup,
+                                JavaUtilConcurrentSchedulerExecuteBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 JavaUtilConcurrentSchedulerRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                JavaUtilConcurrentSchedulerRecurringBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 JavaUtilConcurrentSchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                JavaUtilConcurrentSchedulerScheduleBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
     if (! INCLUDE_JAVA_BASELINE) {
       // we must clear so that the benchmarkGroup and classGroup are still what we expect
       toRun.clear();
@@ -79,21 +91,40 @@ public class BenchmarkCollectionRunner {
                                 PrioritySchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerExecuteBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 PrioritySchedulerRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerRecurringBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 PrioritySchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
-    String[][] singleThreadSchedulerArgs = new String[][] {{"2", "0"}, {"", "NoOp"}};
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerScheduleBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    String[][] singleThreadSchedulerArgs = new String[][] {{"2"}, {""}};
+    String[][] singleThreadSchedulerArgsNpOp = new String[][] {{"0"}, {"NoOp"}};
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
                                 SingleThreadSchedulerExecuteBenchmark.class, 
                                 singleThreadSchedulerArgs));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerExecuteBenchmark.class, 
+                                singleThreadSchedulerArgsNpOp));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 SingleThreadSchedulerRecurringBenchmark.class, 
                                 singleThreadSchedulerArgs));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerRecurringBenchmark.class, 
+                                singleThreadSchedulerArgsNpOp));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 SingleThreadSchedulerScheduleBenchmark.class, 
                                 singleThreadSchedulerArgs));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerScheduleBenchmark.class, 
+                                singleThreadSchedulerArgsNpOp));
     // since NoThreadScheduler is the basis of SingleThreadScheduler they are in the same class group
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 NoThreadSchedulerBenchmark.class, new String[]{"10", "50"}));
@@ -103,45 +134,76 @@ public class BenchmarkCollectionRunner {
                                 SubmitterSchedulerLimiterExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SubmitterSchedulerLimiterExecuteBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 SubmitterSchedulerLimiterRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SubmitterSchedulerLimiterRecurringBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 SubmitterSchedulerLimiterScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SubmitterSchedulerLimiterScheduleBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
                                 KeyedLimiterExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyedLimiterExecuteBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyedLimiterRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyedLimiterRecurringBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyedLimiterScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyedLimiterScheduleBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
                                 KeyDistributedSchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedSchedulerExecuteBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedSchedulerRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedSchedulerRecurringBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedSchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedSchedulerScheduleBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorSimpleBenchmark.class, 
                                 new String[][]{{"true", "false"}, 
                                                {"Execute", "Schedule"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorManySubmitterBenchmark.class, 
-                                new String[][]{{"false 10", "false 50", "false 100", "false 200", 
-                                                "true 10",  "true 50",  "true 100",  "true 200"}, 
-                                               {"Execute10",  "Execute50",  "Execute100",  "Execute200",
-                                                "Schedule10", "Schedule50", "Schedule100", "Schedule200"}}));
+                                new String[][]{{"false 10", "false 50", "false 100", "false 200"}, 
+                                               {"Execute10",  "Execute50",  "Execute100",  "Execute200"}}));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedExecutorManySubmitterBenchmark.class, 
+                                new String[][]{{"true 10",  "true 50",  "true 100",  "true 200"}, 
+                                               {"Schedule10", "Schedule50", "Schedule100", "Schedule200"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorUniqueKeyBenchmark.class, 
-                                new String[][]{{"false 2", "false 4", "false 8", "false 16", 
-                                                "true 2",  "true 4",  "true 8",  "true 16"}, 
-                                               {"Execute2",  "Execute4",  "Execute8", "Execute16", 
-                                                "Schedule2", "Schedule4", "Schedule8", "Schedule16"}}));
+                                new String[][]{{"false 2", "false 4", "false 8", "false 16"}, 
+                                               {"Execute2",  "Execute4",  "Execute8", "Execute16"}}));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedExecutorUniqueKeyBenchmark.class, 
+                                new String[][]{{"true 2",  "true 4",  "true 8",  "true 16"}, 
+                                               {"Schedule2", "Schedule4", "Schedule8", "Schedule16"}}));
     
     toRun.trimToSize();
     BENCHMARKS_TO_RUN = Collections.unmodifiableList(toRun);
@@ -235,7 +297,7 @@ public class BenchmarkCollectionRunner {
         dbi.inTransaction(new TransactionCallback<Void>() {
           @Override
           public Void inTransaction(Handle h, TransactionStatus arg1) throws Exception {
-            BenchmarkDbi benchmarkDbi = h.attach(BenchmarkDbi.class);
+            BenchmarkDao benchmarkDbi = h.attach(BenchmarkDao.class);
             
             int nextBenchmarkGroupRunId = 1 + benchmarkDbi.getLastBenchmarkGroupRunId(bc.benchmarkGroup);
             
@@ -347,7 +409,7 @@ public class BenchmarkCollectionRunner {
     }
   }
   
-  private static class BenchmarkCase {
+  protected static class BenchmarkCase {
     public final int benchmarkGroup;
     public final int classGroup;
     public final Class<? extends AbstractBenchmark> benchmarkClass;
