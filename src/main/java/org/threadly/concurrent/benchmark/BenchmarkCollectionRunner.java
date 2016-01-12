@@ -21,7 +21,7 @@ import org.threadly.util.StringUtils;
 
 public class BenchmarkCollectionRunner {
   protected static final int RUN_COUNT = 5;
-  protected static final boolean INCLUDE_JAVA_BASELINE = true;
+  protected static final boolean INCLUDE_JAVA_BASELINE = false;
   protected static final boolean EXIT_ON_BENCHMARK_FAILURE = false;
   protected static final boolean DISCARD_FIRST_RUN = false;
   protected static final String SHELL = "bash";
