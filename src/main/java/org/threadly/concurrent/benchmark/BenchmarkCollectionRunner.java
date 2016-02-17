@@ -105,6 +105,12 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 PrioritySchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                UnfairExecutorExecuteBenchmark.class, 
+                                executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                UnfairExecutorExecuteBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
     String[][] singleThreadSchedulerArgs = new String[][] {{"2"}, {""}};
     String[][] singleThreadSchedulerArgsNpOp = new String[][] {{"0"}, {"NoOp"}};
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
@@ -204,6 +210,44 @@ public class BenchmarkCollectionRunner {
                                 KeyDistributedExecutorUniqueKeyBenchmark.class, 
                                 new String[][]{{"true 2",  "true 4",  "true 8",  "true 16"}, 
                                                {"Schedule2", "Schedule4", "Schedule8", "Schedule16"}}));
+    
+    // Statistic trackers
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                PrioritySchedulerStatisticTrackerExecuteBenchmark.class, 
+                                executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerStatisticTrackerExecuteBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerStatisticTrackerRecurringBenchmark.class, 
+                                executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerStatisticTrackerRecurringBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerStatisticTrackerScheduleBenchmark.class, 
+                                executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                PrioritySchedulerStatisticTrackerScheduleBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
+                                SingleThreadSchedulerStatisticTrackerExecuteBenchmark.class, 
+                                singleThreadSchedulerArgs));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerStatisticTrackerExecuteBenchmark.class, 
+                                singleThreadSchedulerArgsNpOp));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerStatisticTrackerRecurringBenchmark.class, 
+                                singleThreadSchedulerArgs));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerStatisticTrackerRecurringBenchmark.class, 
+                                singleThreadSchedulerArgsNpOp));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerStatisticTrackerScheduleBenchmark.class, 
+                                singleThreadSchedulerArgs));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                SingleThreadSchedulerStatisticTrackerScheduleBenchmark.class, 
+                                singleThreadSchedulerArgsNpOp));
     
     toRun.trimToSize();
     BENCHMARKS_TO_RUN = Collections.unmodifiableList(toRun);
