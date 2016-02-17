@@ -1,25 +1,38 @@
 package org.threadly.concurrent.benchmark;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import org.knowm.xchart.Chart;
-import org.knowm.xchart.Series;
-import org.knowm.xchart.SeriesMarker;
-import org.knowm.xchart.StyleManager.ChartTheme;
-import org.knowm.xchart.StyleManager.ChartType;
-import org.knowm.xchart.StyleManager.LegendPosition;
-import org.knowm.xchart.StyleManager.TextAlignment;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.BitmapEncoder.BitmapFormat;
+import org.knowm.xchart.ChartBuilder_Category;
+import org.knowm.xchart.Chart_Category;
+import org.knowm.xchart.Series_Category;
+import org.knowm.xchart.Series_Category.ChartCategorySeriesRenderStyle;
 import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.internal.style.Styler.ChartTheme;
+import org.knowm.xchart.internal.style.Styler.LegendPosition;
+import org.knowm.xchart.internal.style.Styler.TextAlignment;
+import org.knowm.xchart.internal.style.markers.SeriesMarkers;
 import org.skife.jdbi.v2.DBI;
 import org.threadly.concurrent.benchmark.dao.BenchmarkDao;
 import org.threadly.concurrent.benchmark.dao.RunRecord;
 import org.threadly.util.StringUtils;
 
 public class DatabaseGraphPngExport {
+  private static final boolean EXPORT_GRAPHS = true;
+  private static final int CHART_WIDTH = 1440;
+  private static final int CHART_HEIGHT = 900;
+  private static final int JAVA_BASELINE_LAST_BENCHMARK_GROUP = 8;
+  
   public static void main(String[] args) throws Exception {
     if (args.length != 6) {
       printUsage();
@@ -43,7 +56,9 @@ public class DatabaseGraphPngExport {
     
     if (args[5].equalsIgnoreCase("ByThreads")) {
       new ScehdulerPerformanceByThreads().generateGraphs(dao, outputFolder);
-    } else if (args[5].equalsIgnoreCase("OverTime")) {
+    } else if (args[5].equalsIgnoreCase("Master")) {
+      new ScehdulerPerformanceOverTime("master").generateGraphs(dao, outputFolder);
+    } else if (args[5].equalsIgnoreCase("Releases")) {
       new ScehdulerPerformanceOverTime("release").generateGraphs(dao, outputFolder);
     } else {
       System.err.println("Unknown generation mode: " + args[5]);
@@ -53,23 +68,97 @@ public class DatabaseGraphPngExport {
   }
   
   private static void printUsage() {
-    System.err.println("java -cp <classpath> " + BenchmarkCollectionRunner.class + 
-                         " <dbHost> <dbUser> <dbPass> <dbName> <outputDirectory> <ByThreads|OverTime>");
+    System.err.println("java -cp <classpath> " + DatabaseGraphPngExport.class + 
+                         " <dbHost> <dbUser> <dbPass> <dbName> <outputDirectory> <ByThreads|Master|Releases>");
   }
   
-  private static interface GraphGenerator {
-    public void generateGraphs(BenchmarkDao dao, File outputFolder);
-  }
-  
-  private static class ScehdulerPerformanceByThreads implements GraphGenerator {
-    @Override
-    public void generateGraphs(BenchmarkDao dao, File outputFolder) {
-      // TODO Auto-generated method stub
-      
+  private static abstract class AbstractGraphGenerator {
+    public abstract void generateGraphs(BenchmarkDao dao, File outputFolder) throws Exception;
+    
+    protected static void chartGenerated(Chart_Category chart, String writeLocation) throws IOException {
+      if (StringUtils.isNullOrEmpty(writeLocation)) {
+        new SwingWrapper(chart).displayChart();
+        System.in.read();
+      } else {
+        BitmapEncoder.saveBitmap(chart, writeLocation, BitmapFormat.PNG);
+      }
     }
   }
   
-  private static class ScehdulerPerformanceOverTime implements GraphGenerator {
+  private static class ScehdulerPerformanceByThreads extends AbstractGraphGenerator {
+    private static final int AVERAGE_COUNT = 2;
+    private static final int MAX_BENCHMARK_GROUP_ID = 14;
+    private static final List<Integer> X_AXIS_VALUES;
+    private static final Pattern THREAD_COUNT_PATTERN;
+    
+    static {
+      X_AXIS_VALUES = Arrays.asList(new Integer[] { 4, 10, 20, 50, 100, 150, 200, 250, 500, 750, 
+                                                    1000, 1500, 2000, 2500});
+      THREAD_COUNT_PATTERN = Pattern.compile("[0-9]+$");
+    }
+
+    @Override
+    public void generateGraphs(BenchmarkDao dao, File outputFolder) throws IOException {
+      int maxClassGroupId = dao.getMaxClassGroupId();
+      for (int cg = 1; cg < maxClassGroupId; cg++) {
+        String identifier = dao.getClassGroupIdentifier(cg);
+        if (StringUtils.isNullOrEmpty(identifier)) {
+          identifier = "cg:" + cg;
+        }
+        
+        int minBenchmarkGroupId = dao.getMinBenchmarkGroupId(cg);
+
+        for (int m = 0; m < 2; m++) {
+          Chart_Category chart = new ChartBuilder_Category().width(CHART_WIDTH)
+                                                            .height(CHART_HEIGHT)
+                                                            .theme(ChartTheme.GGPlot2)
+                                                            .title(identifier)
+                                                            .xAxisTitle("Threads")
+                                                            .yAxisTitle("Executions")
+                                                            .build();
+          chart.getStyler().setDefaultSeriesRenderStyle(ChartCategorySeriesRenderStyle.Line);
+          chart.getStyler().setLegendPosition(LegendPosition.InsideNE);
+          chart.getStyler().setBarWidthPercentage(0);
+          chart.getStyler().setBarsOverlapped(true);
+          
+          for (int bg = minBenchmarkGroupId; bg <= MAX_BENCHMARK_GROUP_ID; bg++) {
+            if (bg % 2 == m) {
+              Integer[] executions = new Integer[X_AXIS_VALUES.size()];
+              int[] count = new int[executions.length];
+              for (RunRecord rr : dao.getLastResultsForBenchmarkGroupId(bg, cg, AVERAGE_COUNT)) {
+                Matcher match = THREAD_COUNT_PATTERN.matcher(rr.getBenchmarkName());
+                if (! match.find()) {
+                  throw new IllegalStateException("Unexpected benchmark name: " + 
+                                                    rr.getBenchmarkName());
+                }
+                Integer threads = Integer.parseInt(match.group());
+                int index = X_AXIS_VALUES.indexOf(threads);
+                if (index < 0) {
+                  throw new IllegalStateException("Could not find x axis value: " + threads + 
+                                                    " / " + rr.getBenchmarkName());
+                }
+                if (count[index]++ == 0) {
+                  executions[index] = rr.getTotalExecutions();
+                } else {
+                  executions[index] += (rr.getTotalExecutions() - executions[index]) / count[index];
+                }
+              }
+              
+              Series_Category series = chart.addSeries(dao.getBenchmarkGroupIdentifier(bg), 
+                                                       X_AXIS_VALUES, Arrays.asList(executions));
+              series.setMarker(SeriesMarkers.NONE);
+            }
+          }
+          
+          chartGenerated(chart, 
+                         EXPORT_GRAPHS ? 
+                           new File(outputFolder, identifier).getAbsolutePath() : null);
+        }
+      }
+    }
+  }
+  
+  private static class ScehdulerPerformanceOverTime extends AbstractGraphGenerator {
     private final String branchPrefix;
     
     public ScehdulerPerformanceOverTime(String branchPrefix) {
@@ -77,10 +166,13 @@ public class DatabaseGraphPngExport {
     }
     
     @Override
-    public void generateGraphs(BenchmarkDao dao, File outputFolder) {
+    public void generateGraphs(BenchmarkDao dao, File outputFolder) throws IOException {
       int maxClassGroupId = dao.getMaxClassGroupId();
       for (int cg = 0; cg < maxClassGroupId; cg++) {
         int minBenchmarkGroupId = dao.getMinBenchmarkGroupId(cg);
+        if (minBenchmarkGroupId < JAVA_BASELINE_LAST_BENCHMARK_GROUP) {
+          continue;
+        }
         int maxBenchmarkGroupId = dao.getMaxBenchmarkGroupId(cg);
         
         for (int bg = minBenchmarkGroupId; bg <= maxBenchmarkGroupId; bg++) {
@@ -108,41 +200,39 @@ public class DatabaseGraphPngExport {
               identifier = "cg:" + cg + "bg:" + bg;
             }
           }
-          
-          Chart chart = new Chart(1024, 768, ChartTheme.GGPlot2);    
-          chart.setChartTitle(identifier);   
-          chart.setXAxisTitle("Version");    
-          chart.setYAxisTitle("Executions");   
-          chart.getStyleManager().setLegendPosition(LegendPosition.OutsideE);
-          chart.getStyleManager().setXAxisLabelRotation(270);
-          if (branchPrefix.startsWith("release")) {
-            chart.getStyleManager().setChartType(ChartType.Bar);
-            chart.getStyleManager().setBarsOverlapped(true);
-            chart.getStyleManager().setBarWidthPercentage(1);
+
+          Chart_Category chart = new ChartBuilder_Category().width(CHART_WIDTH)
+                                                            .height(CHART_HEIGHT)
+                                                            .theme(ChartTheme.GGPlot2)
+                                                            .title(identifier)
+                                                            .xAxisTitle("Version")
+                                                            .yAxisTitle("Executions")
+                                                            .build();
+          chart.getStyler().setDefaultSeriesRenderStyle(ChartCategorySeriesRenderStyle.Line);
+          chart.getStyler().setXAxisLabelRotation(270);
+          chart.getStyler().setBarWidthPercentage(0);
+          chart.getStyler().setBarsOverlapped(true);
+          if (benchmarkNames.size() < 2) {
+            chart.getStyler().setLegendVisible(false);
           } else {
-            chart.getStyleManager().setChartType(ChartType.Line);
+            chart.getStyler().setLegendPosition(LegendPosition.OutsideE);
           }
+          chart.getStyler().setYAxisLabelAlignment(TextAlignment.Right);
           
           for (String name : benchmarkNames) {
             List<RunRecord> individualResults = new ArrayList<RunRecord>(results.size() / 8);
-            List<Object> releases = new ArrayList<Object>(results.size() / 8);
+            List<String> releases = new ArrayList<String>(results.size() / 8);
             List<Integer> executions = new ArrayList<Integer>(results.size() / 8);
             for (RunRecord rr : results) {
               if (rr.getBenchmarkName().equals(name) && 
                   rr.getBranchName().startsWith(branchPrefix)) {
                 individualResults.add(rr);
                 
-                Object xIdentifier;
+                String xIdentifier;
                 if (branchPrefix.startsWith("release")) {
-                  /*Pattern p = Pattern.compile("[0-9]+\\.[0-9]");
-                  Matcher m = p.matcher(rr.getBranchName());
-                  if (! m.find()) {
-                    throw new IllegalStateException("Unable to parse release: " + rr.getBranchName());
-                  }
-                  xIdentifier = Double.parseDouble(m.group());*/
                   xIdentifier = rr.getBranchName();
                 } else {
-                  xIdentifier = new Date(rr.getRunTimestamp());
+                  xIdentifier = new Date(rr.getRunTimestamp()).toString();
                 }
                 
                 if (! releases.isEmpty() && releases.get(releases.size() - 1).equals(xIdentifier)) {
@@ -155,21 +245,15 @@ public class DatabaseGraphPngExport {
               }
             }
             
-            Series series = chart.addSeries(name, releases, executions);
-            series.setMarker(SeriesMarker.NONE);
+            Series_Category series = chart.addSeries(name.length() == identifier.length() ? 
+                                                       name : "Threads:" + name.replaceAll(identifier, ""), 
+                                                     releases, executions);
+            series.setMarker(SeriesMarkers.NONE);
           }
           
-          chart.getStyleManager().setYAxisLabelAlignment(TextAlignment.Right);    
-          chart.getStyleManager().setPlotPadding(0);
-          chart.getStyleManager().setAxisTickSpacePercentage(.95);
-          
-          // TODO - remove and instead write to image
-          new SwingWrapper(chart).displayChart();
-          try {
-            Thread.sleep(1000 * 60);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
+          chartGenerated(chart, 
+                         EXPORT_GRAPHS ? 
+                           new File(outputFolder, identifier).getAbsolutePath() : null);
         }
       }
     }
