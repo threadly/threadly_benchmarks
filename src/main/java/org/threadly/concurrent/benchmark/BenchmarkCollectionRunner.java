@@ -179,6 +179,12 @@ public class BenchmarkCollectionRunner {
                                 KeyDistributedSchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedSchedulerExecuteUnfairExecutorBenchmark.class, 
+                                executeScheduleRecurringThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedSchedulerExecuteUnfairExecutorBenchmark.class, 
+                                executeScheduleRecurringNoOpThreadCases));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedSchedulerRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
@@ -210,6 +216,9 @@ public class BenchmarkCollectionRunner {
                                 KeyDistributedExecutorUniqueKeyBenchmark.class, 
                                 new String[][]{{"true 2",  "true 4",  "true 8",  "true 16"}, 
                                                {"Schedule2", "Schedule4", "Schedule8", "Schedule16"}}));
+    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
+                                KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark.class, 
+                                new String[]{"2", "4", "8", "10", "16", "20"}));
     
     // Statistic trackers
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
