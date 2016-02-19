@@ -30,7 +30,7 @@ public class KeyDistributedSchedulerRecurringBenchmark extends AbstractScheduler
 
   @Override
   protected SubmitterScheduler getScheduler() {
-    return keyScheduler.getSubmitterSchedulerForKey(new Object());
+    return keyScheduler.getSchedulerForKey(new Object());
   }
 
   @Override

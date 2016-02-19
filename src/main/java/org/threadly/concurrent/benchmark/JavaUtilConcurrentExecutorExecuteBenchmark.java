@@ -4,7 +4,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.threadly.concurrent.AbstractSubmitterScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
 
 public class JavaUtilConcurrentExecutorExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
@@ -29,37 +28,7 @@ public class JavaUtilConcurrentExecutorExecuteBenchmark extends AbstractSchedule
                                               Integer.MAX_VALUE, TimeUnit.MILLISECONDS, 
                                               new ArrayBlockingQueue<Runnable>(RUNNABLE_COUNT));
     originalExecutor.prestartAllCoreThreads();
-    executor = new AbstractSubmitterScheduler() {
-      @Override
-      public void scheduleWithFixedDelay(Runnable task, long initialDelay, long recurringDelay) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public void scheduleAtFixedRate(Runnable task, long initialDelay, long period) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      protected void doSchedule(final Runnable task, final long delayInMillis) {
-        if (delayInMillis > 0) {
-          new Thread(new Runnable() {
-            @Override
-            public void run() {
-              try {
-                Thread.sleep(delayInMillis);
-              } catch (InterruptedException e) {
-                // ignored
-              }
-              
-              task.run();
-            }
-          }).start();
-        } else {
-          originalExecutor.execute(task);
-        }
-      }
-    };
+    executor = new ExecutorSchedulerAdapter(originalExecutor);
   }
 
   @Override
