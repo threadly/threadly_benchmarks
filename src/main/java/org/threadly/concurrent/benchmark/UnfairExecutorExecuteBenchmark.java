@@ -1,6 +1,5 @@
 package org.threadly.concurrent.benchmark;
 
-import org.threadly.concurrent.AbstractSubmitterScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.UnfairExecutor;
 
@@ -23,37 +22,7 @@ public class UnfairExecutorExecuteBenchmark extends AbstractSchedulerExecuteBenc
     super(threadRunTime);
     
     originalExecutor = new UnfairExecutor(poolSize);
-    executor = new AbstractSubmitterScheduler() {
-      @Override
-      public void scheduleWithFixedDelay(Runnable task, long initialDelay, long recurringDelay) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public void scheduleAtFixedRate(Runnable task, long initialDelay, long period) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      protected void doSchedule(final Runnable task, final long delayInMillis) {
-        if (delayInMillis > 0) {
-          new Thread(new Runnable() {
-            @Override
-            public void run() {
-              try {
-                Thread.sleep(delayInMillis);
-              } catch (InterruptedException e) {
-                // ignored
-              }
-              
-              task.run();
-            }
-          }).start();
-        } else {
-          originalExecutor.execute(task);
-        }
-      }
-    };
+    executor = new ExecutorSchedulerAdapter(originalExecutor);
   }
 
   @Override
