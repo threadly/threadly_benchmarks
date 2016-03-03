@@ -23,7 +23,6 @@ public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractScheduler
   public SubmitterSchedulerLimiterExecuteBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
-    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
     originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
     originalExecutor.prestartAllThreads();
     executor = new SubmitterSchedulerLimiter(originalExecutor, Integer.MAX_VALUE);

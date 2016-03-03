@@ -1,8 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
-import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
-import org.threadly.concurrent.TaskPriority;
+import org.threadly.concurrent.UnfairExecutor;
 import org.threadly.concurrent.limiter.ExecutorLimiter;
 
 public class ExecutorLimiterExecuteUnfairExecutorBenchmark extends AbstractSchedulerExecuteBenchmark {
@@ -17,15 +16,13 @@ public class ExecutorLimiterExecuteUnfairExecutorBenchmark extends AbstractSched
     }
   }
 
-  protected final PriorityScheduler originalExecutor;
+  protected final UnfairExecutor originalExecutor;
   protected final SubmitterScheduler executor;
   
   public ExecutorLimiterExecuteUnfairExecutorBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
-    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
-    originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
-    originalExecutor.prestartAllThreads();
+    originalExecutor = new UnfairExecutor(poolSize);
     executor = new ExecutorSchedulerAdapter(new ExecutorLimiter(originalExecutor, Integer.MAX_VALUE));
   }
   

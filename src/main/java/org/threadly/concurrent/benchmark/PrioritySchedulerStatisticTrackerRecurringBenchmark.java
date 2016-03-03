@@ -21,7 +21,6 @@ public class PrioritySchedulerStatisticTrackerRecurringBenchmark extends Abstrac
   public PrioritySchedulerStatisticTrackerRecurringBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
-    // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
     scheduler = new PrioritySchedulerStatisticTracker(poolSize, TaskPriority.High, 0);
     scheduler.prestartAllThreads();
   }
