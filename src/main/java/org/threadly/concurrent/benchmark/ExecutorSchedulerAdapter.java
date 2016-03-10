@@ -3,6 +3,7 @@ package org.threadly.concurrent.benchmark;
 import java.util.concurrent.Executor;
 
 import org.threadly.concurrent.AbstractSubmitterScheduler;
+import org.threadly.util.ExceptionUtils;
 
 public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
   private final Executor executor;
@@ -34,7 +35,7 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
             return;
           }
           
-          task.run();
+          ExceptionUtils.runRunnable(task);
         }
       }).start();
     } else {
