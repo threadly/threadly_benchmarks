@@ -3,7 +3,7 @@ package org.threadly.concurrent.benchmark;
 import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.TaskPriority;
-import org.threadly.concurrent.limiter.SubmitterSchedulerLimiter;
+import org.threadly.concurrent.wrapper.limiter.SubmitterSchedulerLimiter;
 
 public class SubmitterSchedulerLimiterScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
   public static void main(String args[]) {

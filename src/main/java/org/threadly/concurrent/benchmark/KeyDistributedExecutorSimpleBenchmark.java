@@ -1,7 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
 import org.threadly.concurrent.PriorityScheduler;
-import org.threadly.concurrent.KeyDistributedScheduler;
+import org.threadly.concurrent.wrapper.KeyDistributedScheduler;
 
 /**
  * Does not need to create and destroy workers, queues remain small, and lock contention is 

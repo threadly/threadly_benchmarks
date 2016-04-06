@@ -3,7 +3,7 @@ package org.threadly.concurrent.benchmark;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.threadly.concurrent.PriorityScheduler;
-import org.threadly.concurrent.KeyDistributedScheduler;
+import org.threadly.concurrent.wrapper.KeyDistributedScheduler;
 
 /**
  * This benchmark is good at creating very large queues for the distributor key.

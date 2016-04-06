@@ -1,9 +1,9 @@
 package org.threadly.concurrent.benchmark;
 
-import org.threadly.concurrent.KeyDistributedScheduler;
 import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.TaskPriority;
+import org.threadly.concurrent.wrapper.KeyDistributedScheduler;
 
 public class KeyDistributedSchedulerExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {

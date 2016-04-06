@@ -2,7 +2,7 @@ package org.threadly.concurrent.benchmark;
 
 import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.SubmitterScheduler;
-import org.threadly.concurrent.limiter.RateLimiterExecutor;
+import org.threadly.concurrent.wrapper.limiter.RateLimiterExecutor;
 
 public class RateLimiterExecutorExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {

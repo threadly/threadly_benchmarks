@@ -2,8 +2,8 @@ package org.threadly.concurrent.benchmark;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import org.threadly.concurrent.ScheduledExecutorServiceWrapper;
 import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.wrapper.compatibility.ScheduledExecutorServiceWrapper;
 
 public class JavaUtilConcurrentSchedulerExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {

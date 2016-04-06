@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.threadly.concurrent.PriorityScheduler;
-import org.threadly.concurrent.KeyDistributedScheduler;
+import org.threadly.concurrent.wrapper.KeyDistributedScheduler;
 
 /**
  * Lots and lots of short lived distributors with queues the size of one.  Requires a lot of 

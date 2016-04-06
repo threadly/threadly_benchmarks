@@ -1,8 +1,8 @@
 package org.threadly.concurrent.benchmark;
 
-import org.threadly.concurrent.KeyDistributedExecutor;
 import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.UnfairExecutor;
+import org.threadly.concurrent.wrapper.KeyDistributedExecutor;
 
 public class KeyDistributedSchedulerExecuteUnfairExecutorBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {

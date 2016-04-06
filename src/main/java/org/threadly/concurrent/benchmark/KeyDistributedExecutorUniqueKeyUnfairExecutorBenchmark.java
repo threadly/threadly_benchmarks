@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.threadly.concurrent.UnfairExecutor;
-import org.threadly.concurrent.KeyDistributedExecutor;
+import org.threadly.concurrent.wrapper.KeyDistributedExecutor;
 
 /**
  * Lots and lots of short lived distributors with queues the size of one.  Requires a lot of 
