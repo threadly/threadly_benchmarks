@@ -13,15 +13,15 @@ import java.util.regex.Pattern;
 
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
-import org.knowm.xchart.ChartBuilder_Category;
-import org.knowm.xchart.Chart_Category;
-import org.knowm.xchart.Series_Category;
-import org.knowm.xchart.Series_Category.ChartCategorySeriesRenderStyle;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.CategoryChartBuilder;
+import org.knowm.xchart.CategorySeries;
+import org.knowm.xchart.CategorySeries.CategorySeriesRenderStyle;
 import org.knowm.xchart.SwingWrapper;
-import org.knowm.xchart.internal.style.Styler.ChartTheme;
-import org.knowm.xchart.internal.style.Styler.LegendPosition;
-import org.knowm.xchart.internal.style.Styler.TextAlignment;
-import org.knowm.xchart.internal.style.markers.SeriesMarkers;
+import org.knowm.xchart.style.Styler.ChartTheme;
+import org.knowm.xchart.style.Styler.LegendPosition;
+import org.knowm.xchart.style.Styler.TextAlignment;
+import org.knowm.xchart.style.markers.SeriesMarkers;
 import org.skife.jdbi.v2.DBI;
 import org.threadly.concurrent.benchmark.dao.BenchmarkDao;
 import org.threadly.concurrent.benchmark.dao.RunRecord;
@@ -75,9 +75,9 @@ public class DatabaseGraphPngExport {
   private static abstract class AbstractGraphGenerator {
     public abstract void generateGraphs(BenchmarkDao dao, File outputFolder) throws Exception;
     
-    protected static void chartGenerated(Chart_Category chart, String writeLocation) throws IOException {
+    protected static void chartGenerated(CategoryChart chart, String writeLocation) throws IOException {
       if (StringUtils.isNullOrEmpty(writeLocation)) {
-        new SwingWrapper(chart).displayChart();
+        new SwingWrapper<CategoryChart>(chart).displayChart();
         System.in.read();
       } else {
         BitmapEncoder.saveBitmap(chart, writeLocation, BitmapFormat.PNG);
@@ -109,17 +109,17 @@ public class DatabaseGraphPngExport {
         int minBenchmarkGroupId = dao.getMinBenchmarkGroupId(cg);
 
         for (int m = 0; m < 2; m++) {
-          Chart_Category chart = new ChartBuilder_Category().width(CHART_WIDTH)
-                                                            .height(CHART_HEIGHT)
-                                                            .theme(ChartTheme.GGPlot2)
-                                                            .title(identifier)
-                                                            .xAxisTitle("Threads")
-                                                            .yAxisTitle("Executions")
-                                                            .build();
-          chart.getStyler().setDefaultSeriesRenderStyle(ChartCategorySeriesRenderStyle.Line);
+          CategoryChart chart = new CategoryChartBuilder().width(CHART_WIDTH)
+                                                          .height(CHART_HEIGHT)
+                                                          .theme(ChartTheme.GGPlot2)
+                                                          .title(identifier)
+                                                          .xAxisTitle("Threads")
+                                                          .yAxisTitle("Executions")
+                                                          .build();
+          chart.getStyler().setDefaultSeriesRenderStyle(CategorySeriesRenderStyle.Line);
           chart.getStyler().setLegendPosition(LegendPosition.InsideNE);
-          chart.getStyler().setBarWidthPercentage(0);
-          chart.getStyler().setBarsOverlapped(true);
+          chart.getStyler().setAvailableSpaceFill(0);
+          chart.getStyler().setOverlapped(true);
           
           for (int bg = minBenchmarkGroupId; bg <= MAX_BENCHMARK_GROUP_ID; bg++) {
             if (bg % 2 == m) {
@@ -144,8 +144,8 @@ public class DatabaseGraphPngExport {
                 }
               }
               
-              Series_Category series = chart.addSeries(dao.getBenchmarkGroupIdentifier(bg), 
-                                                       X_AXIS_VALUES, Arrays.asList(executions));
+              CategorySeries series = chart.addSeries(dao.getBenchmarkGroupIdentifier(bg), 
+                                                      X_AXIS_VALUES, Arrays.asList(executions));
               series.setMarker(SeriesMarkers.NONE);
             }
           }
@@ -201,17 +201,17 @@ public class DatabaseGraphPngExport {
             }
           }
 
-          Chart_Category chart = new ChartBuilder_Category().width(CHART_WIDTH)
-                                                            .height(CHART_HEIGHT)
-                                                            .theme(ChartTheme.GGPlot2)
-                                                            .title(identifier)
-                                                            .xAxisTitle("Version")
-                                                            .yAxisTitle("Executions")
-                                                            .build();
-          chart.getStyler().setDefaultSeriesRenderStyle(ChartCategorySeriesRenderStyle.Line);
+          CategoryChart chart = new CategoryChartBuilder().width(CHART_WIDTH)
+                                                          .height(CHART_HEIGHT)
+                                                          .theme(ChartTheme.GGPlot2)
+                                                          .title(identifier)
+                                                          .xAxisTitle("Version")
+                                                          .yAxisTitle("Executions")
+                                                          .build();
+          chart.getStyler().setDefaultSeriesRenderStyle(CategorySeriesRenderStyle.Line);
           chart.getStyler().setXAxisLabelRotation(270);
-          chart.getStyler().setBarWidthPercentage(0);
-          chart.getStyler().setBarsOverlapped(true);
+          chart.getStyler().setAvailableSpaceFill(0);
+          chart.getStyler().setOverlapped(true);
           if (benchmarkNames.size() < 2) {
             chart.getStyler().setLegendVisible(false);
           } else {
@@ -245,9 +245,9 @@ public class DatabaseGraphPngExport {
               }
             }
             
-            Series_Category series = chart.addSeries(name.length() == identifier.length() ? 
-                                                       name : "Threads:" + name.replaceAll(identifier, ""), 
-                                                     releases, executions);
+            CategorySeries series = chart.addSeries(name.length() == identifier.length() ? 
+                                                      name : "Threads:" + name.replaceAll(identifier, ""), 
+                                                    releases, executions);
             series.setMarker(SeriesMarkers.NONE);
           }
           

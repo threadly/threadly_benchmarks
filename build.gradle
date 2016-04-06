@@ -13,7 +13,7 @@ dependencies {
   compile group: 'org.threadly', name: 'threadly', version: '4.+'
   compile 'org.jdbi:jdbi:2.72'
   compile 'org.postgresql:postgresql:9.4-1202-jdbc41'
-  compile 'org.knowm.xchart:xchart:3.0.1'
+  compile 'org.knowm.xchart:xchart:3.0.3'
 }
 
 test {
