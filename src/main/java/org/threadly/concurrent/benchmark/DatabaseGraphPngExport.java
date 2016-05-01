@@ -7,7 +7,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,11 +56,13 @@ public class DatabaseGraphPngExport {
       System.exit(-3);
     }
     
-    if (args[5].equalsIgnoreCase("ByThreads")) {
-      new ScehdulerPerformanceByThreads().generateGraphs(dao, outputFolder);
-    } else if (args[5].equalsIgnoreCase("Master")) {
+    if (args[5].equalsIgnoreCase("ByThreadsPerClass")) {
+      new ScehdulerPerformanceByThreadsPerClass().generateGraphs(dao, outputFolder);
+    } else if (args[5].equalsIgnoreCase("ByThreadsPerType")) {
+      new ScehdulerPerformanceByThreadsPerType().generateGraphs(dao, outputFolder);
+    } else if (args[5].equalsIgnoreCase("master")) {
       new ScehdulerPerformanceOverTime("master").generateGraphs(dao, outputFolder);
-    } else if (args[5].equalsIgnoreCase("Releases")) {
+    } else if (args[5].equalsIgnoreCase("release")) {
       new ScehdulerPerformanceOverTime("release").generateGraphs(dao, outputFolder);
     } else {
       System.err.println("Unknown generation mode: " + args[5]);
@@ -69,7 +73,8 @@ public class DatabaseGraphPngExport {
   
   private static void printUsage() {
     System.err.println("java -cp <classpath> " + DatabaseGraphPngExport.class + 
-                         " <dbHost> <dbUser> <dbPass> <dbName> <outputDirectory> <ByThreads|Master|Releases>");
+                         " <dbHost> <dbUser> <dbPass> <dbName> <outputDirectory>" + 
+                         " <ByThreadsPerClass|ByThreadsPerType|Master|Release>");
   }
   
   private static abstract class AbstractGraphGenerator {
@@ -85,18 +90,20 @@ public class DatabaseGraphPngExport {
     }
   }
   
-  private static class ScehdulerPerformanceByThreads extends AbstractGraphGenerator {
-    private static final int AVERAGE_COUNT = 2;
-    private static final int MAX_BENCHMARK_GROUP_ID = 14;
-    private static final List<Integer> X_AXIS_VALUES;
-    private static final Pattern THREAD_COUNT_PATTERN;
+  private static abstract class AbstractByThreadsGraphGenerator extends AbstractGraphGenerator {
+    protected static final int AVERAGE_COUNT = 2;
+    protected static final int MAX_BENCHMARK_GROUP_ID = 14;
+    protected static final List<Integer> X_AXIS_VALUES;
+    protected static final Pattern THREAD_COUNT_PATTERN;
     
     static {
       X_AXIS_VALUES = Arrays.asList(new Integer[] { 4, 10, 20, 50, 100, 150, 200, 250, 500, 750, 
                                                     1000, 1500, 2000, 2500});
       THREAD_COUNT_PATTERN = Pattern.compile("[0-9]+$");
     }
-
+  }
+  
+  private static class ScehdulerPerformanceByThreadsPerClass extends AbstractByThreadsGraphGenerator {
     @Override
     public void generateGraphs(BenchmarkDao dao, File outputFolder) throws IOException {
       int maxClassGroupId = dao.getMaxClassGroupId();
@@ -173,6 +180,174 @@ public class DatabaseGraphPngExport {
                            EXPORT_GRAPHS ? 
                              new File(outputFolder, chartName).getAbsolutePath() : null);
           }
+        }
+      }
+    }
+  }
+  
+  private static class ScehdulerPerformanceByThreadsPerType extends AbstractByThreadsGraphGenerator {
+    @Override
+    public void generateGraphs(BenchmarkDao dao, File outputFolder) throws IOException {
+      List<TypeChartData> chartData = Arrays.asList(new TypeChartData(outputFolder, 
+                                                                      "Execute", "execute"), 
+                                                    new TypeChartData(outputFolder, 
+                                                                      "Schedule", "schedule"), 
+                                                    new TypeChartData(outputFolder, 
+                                                                      "Recurring", "recurring"), 
+                                                    new TypeChartData(outputFolder, 
+                                                                      "ExecuteNoOp", "executeNoOp"), 
+                                                    new TypeChartData(outputFolder, 
+                                                                      "ScheduleNoOp", "scheduleNoOp"), 
+                                                    new TypeChartData(outputFolder, 
+                                                                      "RecurringNoOp", "recurringNoOp"));
+      int maxClassGroupId = dao.getMaxClassGroupId();
+      for (int cg = 1; cg < maxClassGroupId; cg++) {
+        for (int bg = dao.getMinBenchmarkGroupId(cg); bg <= MAX_BENCHMARK_GROUP_ID; bg++) {
+          for (RunRecord rr : dao.getLastResultsForBenchmarkGroupId(bg, cg)) {
+            boolean allComplete = true;
+            for (TypeChartData tcd : chartData) {
+              allComplete &= tcd.acceptRecord(rr);
+            }
+            if (allComplete) {
+              break;
+            }
+          }
+        }
+      }
+      for (TypeChartData tcd : chartData) {
+        tcd.generateGraphs();
+      }
+    }
+    
+    private static class TypeChartData {
+      private static final String[] CLASSES = new String[]{ "JavaUtilConcurrentScheduler", 
+                                                            "PriorityScheduler" };
+      private final File outputFolder;
+      private final Pattern chartTypePattern;
+      private final String chartName;
+      private final CategoryChart chart;
+      private final Map<String, SeriesData> seriesData;
+      private boolean dataComplete = false;
+      
+      private TypeChartData(File outputFolder, String type, String chartName) {
+        this.outputFolder = outputFolder;
+        seriesData = new HashMap<String, SeriesData>();
+        StringBuilder sb = new StringBuilder();
+        sb.append('(');
+        for (String s : CLASSES) {
+          seriesData.put(s, new SeriesData(s));
+          
+          if (sb.length() > 1) {
+            sb.append('|');
+          }
+          sb.append(s);
+        }
+        sb.append(')').append(type).append("[0-9]+");
+        this.chartTypePattern = Pattern.compile(sb.toString());
+        this.chartName = chartName;
+        chart = new CategoryChartBuilder().width(CHART_WIDTH)
+                                          .height(CHART_HEIGHT)
+                                          .theme(ChartTheme.GGPlot2)
+                                          .title(chartName)
+                                          .xAxisTitle("Threads")
+                                          .yAxisTitle("Executions")
+                                          .build();
+        chart.getStyler().setDefaultSeriesRenderStyle(CategorySeriesRenderStyle.Line);
+        chart.getStyler().setLegendPosition(LegendPosition.InsideNE);
+        chart.getStyler().setAvailableSpaceFill(0);
+        chart.getStyler().setOverlapped(true);
+      }
+      
+      private boolean dataComplete() {
+        if (dataComplete) {
+          return true;
+        }
+        for (String s : CLASSES) {
+          if (! seriesData.get(s).dataComplete()) {
+            return false;
+          }
+        }
+        return dataComplete = true;
+      }
+      
+      @SuppressWarnings("unused")
+      public boolean acceptRecord(RunRecord rr) {
+        if (! chartTypePattern.matcher(rr.getBenchmarkName()).matches()) {
+          return dataComplete;
+        } else if (dataComplete) {
+          return true;
+        }
+        
+        SeriesData seriesData = null;
+        for (String s : CLASSES) {
+          if (rr.getBenchmarkName().startsWith(s)) {
+            seriesData = this.seriesData.get(s);
+          }
+        }
+        if (seriesData == null) {
+          throw new IllegalStateException("Unexpected run record: " + rr.getBenchmarkName());
+        }
+        Matcher match = THREAD_COUNT_PATTERN.matcher(rr.getBenchmarkName());
+        if (! match.find()) {
+          throw new IllegalStateException("Unexpected benchmark name: " + rr.getBenchmarkName());
+        }
+        Integer threads = Integer.parseInt(match.group());
+        int index = X_AXIS_VALUES.indexOf(threads);
+        if (index < 0) {
+          throw new IllegalStateException("Could not find x axis value: " + threads + 
+                                            " / " + rr.getBenchmarkName());
+        }
+        
+        if (seriesData.count[index] == 0) {
+          seriesData.count[index]++;
+          seriesData.executions[index] = rr.getTotalExecutions();
+          return AVERAGE_COUNT == 1 ? dataComplete() : false;
+        } else if (seriesData.count[index] < AVERAGE_COUNT) {
+          seriesData.count[index]++;
+          seriesData.executions[index] += 
+              (rr.getTotalExecutions() - seriesData.executions[index]) / seriesData.count[index];
+          return seriesData.count[index] == AVERAGE_COUNT ? dataComplete() : false;
+        } else {
+          return dataComplete();
+        }
+      }
+      
+      public void generateGraphs() throws IOException {
+        for (String s : CLASSES) {
+          SeriesData sd = seriesData.get(s);
+          if (! sd.dataComplete()) {
+            return;
+          }
+          
+          CategorySeries series = chart.addSeries(sd.name, 
+                                                  X_AXIS_VALUES, Arrays.asList(sd.executions));
+          series.setMarker(SeriesMarkers.NONE);
+        }
+        
+        chartGenerated(chart, 
+                       EXPORT_GRAPHS ? new File(outputFolder, chartName).getAbsolutePath() : null);
+      }
+      
+      private static class SeriesData {
+        public final String name;
+        public final Integer[] executions = new Integer[X_AXIS_VALUES.size()];
+        public final int[] count = new int[executions.length];
+        private boolean dataComplete = false;
+        
+        public SeriesData(String name) {
+          this.name = name;
+        }
+        
+        public boolean dataComplete() {
+          if (dataComplete) {
+            return true;
+          }
+          for (int i = 0; i < count.length; i++) {
+            if (count[i] < AVERAGE_COUNT) {
+              return false;
+            }
+          }
+          return dataComplete = true;
         }
       }
     }
