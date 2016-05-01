@@ -109,10 +109,11 @@ public class DatabaseGraphPngExport {
         int minBenchmarkGroupId = dao.getMinBenchmarkGroupId(cg);
 
         for (int m = 0; m < 2; m++) {
+          String chartName = identifier + (m == 0 ? "NoOp" : "");
           CategoryChart chart = new CategoryChartBuilder().width(CHART_WIDTH)
                                                           .height(CHART_HEIGHT)
                                                           .theme(ChartTheme.GGPlot2)
-                                                          .title(identifier)
+                                                          .title(chartName)
                                                           .xAxisTitle("Threads")
                                                           .yAxisTitle("Executions")
                                                           .build();
@@ -121,11 +122,12 @@ public class DatabaseGraphPngExport {
           chart.getStyler().setAvailableSpaceFill(0);
           chart.getStyler().setOverlapped(true);
           
+          int seriesCount = 0;
           for (int bg = minBenchmarkGroupId; bg <= MAX_BENCHMARK_GROUP_ID; bg++) {
             if (bg % 2 == m) {
               Integer[] executions = new Integer[X_AXIS_VALUES.size()];
               int[] count = new int[executions.length];
-              for (RunRecord rr : dao.getLastResultsForBenchmarkGroupId(bg, cg, AVERAGE_COUNT)) {
+              for (RunRecord rr : dao.getLastResultsForBenchmarkGroupId(bg, cg)) {
                 Matcher match = THREAD_COUNT_PATTERN.matcher(rr.getBenchmarkName());
                 if (! match.find()) {
                   throw new IllegalStateException("Unexpected benchmark name: " + 
@@ -137,22 +139,40 @@ public class DatabaseGraphPngExport {
                   throw new IllegalStateException("Could not find x axis value: " + threads + 
                                                     " / " + rr.getBenchmarkName());
                 }
-                if (count[index]++ == 0) {
+                if (count[index] == 0) {
+                  count[index]++;
                   executions[index] = rr.getTotalExecutions();
-                } else {
+                } else if (count[index] < AVERAGE_COUNT) {
+                  count[index]++;
                   executions[index] += (rr.getTotalExecutions() - executions[index]) / count[index];
+                } else {
+                  boolean done = true;
+                  for (int i = 0; i < count.length; i++) {
+                    if (count[i] < AVERAGE_COUNT) {
+                      done = false;
+                      break;
+                    }
+                  }
+                  if (done) {
+                    break;
+                  }
                 }
               }
               
-              CategorySeries series = chart.addSeries(dao.getBenchmarkGroupIdentifier(bg), 
-                                                      X_AXIS_VALUES, Arrays.asList(executions));
-              series.setMarker(SeriesMarkers.NONE);
+              if (count[0] > 0) {
+                seriesCount++;
+                CategorySeries series = chart.addSeries(dao.getBenchmarkGroupIdentifier(bg), 
+                                                        X_AXIS_VALUES, Arrays.asList(executions));
+                series.setMarker(SeriesMarkers.NONE);
+              }
             }
           }
           
-          chartGenerated(chart, 
-                         EXPORT_GRAPHS ? 
-                           new File(outputFolder, identifier).getAbsolutePath() : null);
+          if (seriesCount > 0) {
+            chartGenerated(chart, 
+                           EXPORT_GRAPHS ? 
+                             new File(outputFolder, chartName).getAbsolutePath() : null);
+          }
         }
       }
     }

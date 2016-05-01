@@ -36,10 +36,9 @@ public interface BenchmarkDao {
                                                        @Bind("cGroupId") int cGroupId);
   @SqlQuery("SELECT * FROM run_results" + 
               " WHERE benchmark_group_id = :bGroupId AND class_group_id = :cGroupId AND ignore_result = false" + 
-              " ORDER BY run_timestamp DESC LIMIT :limit")
+              " ORDER BY run_timestamp DESC")
   public List<RunRecord> getLastResultsForBenchmarkGroupId(@Bind("bGroupId") int bGroupId, 
-                                                           @Bind("cGroupId") int cGroupId, 
-                                                           @Bind("limit") int limit);
+                                                           @Bind("cGroupId") int cGroupId);
 
   @SqlQuery("SELECT DISTINCT(benchmark_name) FROM run_results" + 
               " WHERE benchmark_group_id = :bGroupId AND class_group_id = :cGroupId AND ignore_result = false")
