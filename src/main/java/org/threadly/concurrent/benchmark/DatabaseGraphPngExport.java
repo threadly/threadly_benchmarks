@@ -92,7 +92,6 @@ public class DatabaseGraphPngExport {
   
   private static abstract class AbstractByThreadsGraphGenerator extends AbstractGraphGenerator {
     protected static final int AVERAGE_COUNT = 2;
-    protected static final int MAX_BENCHMARK_GROUP_ID = 14;
     protected static final List<Integer> X_AXIS_VALUES;
     protected static final Pattern THREAD_COUNT_PATTERN;
     
@@ -104,6 +103,10 @@ public class DatabaseGraphPngExport {
   }
   
   private static class ScehdulerPerformanceByThreadsPerClass extends AbstractByThreadsGraphGenerator {
+    // benchmarks not broken down by thread
+    protected static final List<Integer> EXCLUDED_BENCHMARK_GROUPS = 
+        Arrays.asList(new Integer[]{17, 18, 19, 20, 21, 22, 46, 49, 50, 51});
+    
     @Override
     public void generateGraphs(BenchmarkDao dao, File outputFolder) throws IOException {
       int maxClassGroupId = dao.getMaxClassGroupId();
@@ -114,6 +117,7 @@ public class DatabaseGraphPngExport {
         }
         
         int minBenchmarkGroupId = dao.getMinBenchmarkGroupId(cg);
+        int maxBenchmarkGroupId = dao.getMaxBenchmarkGroupId(cg);
 
         for (int m = 0; m < 2; m++) {
           String chartName = identifier + (m == 0 ? "NoOp" : "");
@@ -130,7 +134,10 @@ public class DatabaseGraphPngExport {
           chart.getStyler().setOverlapped(true);
           
           int seriesCount = 0;
-          for (int bg = minBenchmarkGroupId; bg <= MAX_BENCHMARK_GROUP_ID; bg++) {
+          for (int bg = minBenchmarkGroupId; bg <= maxBenchmarkGroupId; bg++) {
+            if (EXCLUDED_BENCHMARK_GROUPS.contains(bg)) {
+              continue;
+            }
             if (bg % 2 == m) {
               Integer[] executions = new Integer[X_AXIS_VALUES.size()];
               int[] count = new int[executions.length];
@@ -138,13 +145,13 @@ public class DatabaseGraphPngExport {
                 Matcher match = THREAD_COUNT_PATTERN.matcher(rr.getBenchmarkName());
                 if (! match.find()) {
                   throw new IllegalStateException("Unexpected benchmark name: " + 
-                                                    rr.getBenchmarkName());
+                                                    rr.getBenchmarkName() + " - " + bg);
                 }
                 Integer threads = Integer.parseInt(match.group());
                 int index = X_AXIS_VALUES.indexOf(threads);
                 if (index < 0) {
                   throw new IllegalStateException("Could not find x axis value: " + threads + 
-                                                    " / " + rr.getBenchmarkName());
+                                                    " / " + rr.getBenchmarkName() + " - " + bg);
                 }
                 if (count[index] == 0) {
                   count[index]++;
@@ -202,7 +209,9 @@ public class DatabaseGraphPngExport {
                                                                       "RecurringNoOp", "recurringNoOp"));
       int maxClassGroupId = dao.getMaxClassGroupId();
       for (int cg = 1; cg < maxClassGroupId; cg++) {
-        for (int bg = dao.getMinBenchmarkGroupId(cg); bg <= MAX_BENCHMARK_GROUP_ID; bg++) {
+        int minBenchmarkGroupId = dao.getMinBenchmarkGroupId(cg);
+        int maxBenchmarkGroupId = dao.getMaxBenchmarkGroupId(cg);
+        for (int bg = minBenchmarkGroupId; bg <= maxBenchmarkGroupId; bg++) {
           for (RunRecord rr : dao.getLastResultsForBenchmarkGroupId(bg, cg)) {
             boolean allComplete = true;
             for (TypeChartData tcd : chartData) {
@@ -221,7 +230,8 @@ public class DatabaseGraphPngExport {
     
     private static class TypeChartData {
       private static final String[] CLASSES = new String[]{ "JavaUtilConcurrentScheduler", 
-                                                            "PriorityScheduler" };
+                                                            "JavaUtilConcurrentExecutor", 
+                                                            "PriorityScheduler", "UnfairExecutor" };
       private final File outputFolder;
       private final Pattern chartTypePattern;
       private final String chartName;
