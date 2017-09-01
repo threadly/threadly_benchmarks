@@ -8,7 +8,7 @@ import org.threadly.concurrent.wrapper.KeyDistributedScheduler;
  * minimal.
  */
 public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     run(Boolean.parseBoolean(args[0]));
   }
   
@@ -28,7 +28,7 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
   private static volatile long thread1Count = -1;
   private static volatile long thread2Count = -1;
   
-  protected static void run(final boolean schedule) {
+  protected static void run(final boolean schedule) throws InterruptedException {
     Runnable thread1 = new Runner() {
       @Override
       public void run() {
@@ -47,14 +47,10 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
         }
       }
     };
-    long startTime = System.currentTimeMillis();
     EXECUTOR.execute(thread1);
     EXECUTOR.execute(thread2);
-    
-    while (System.currentTimeMillis() - startTime < RUN_TIME) {
-      // spin
-      Thread.yield();
-    }
+
+    Thread.sleep(RUN_TIME);
     
     run = false;
     EXECUTOR.shutdownNow();

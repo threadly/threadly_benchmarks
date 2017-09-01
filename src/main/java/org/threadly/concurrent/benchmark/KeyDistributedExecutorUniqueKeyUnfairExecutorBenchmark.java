@@ -5,13 +5,14 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.threadly.concurrent.UnfairExecutor;
 import org.threadly.concurrent.wrapper.KeyDistributedExecutor;
+import org.threadly.util.Clock;
 
 /**
  * Lots and lots of short lived distributors with queues the size of one.  Requires a lot of 
  * construction and GC as each worker is constructed and then tossed away. 
  */
 public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends AbstractBenchmark {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     new KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark(Integer.parseInt(args[0])).run();
   }
   
@@ -38,15 +39,15 @@ public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends Abst
     }
   }
   
-  protected void run() {
-    final long startTime = System.currentTimeMillis();
+  protected void run() throws InterruptedException {
+    final long startTime = Clock.accurateForwardProgressingMillis();
     for (int i = 0; i < submitterQty; i++) {
       final int index = i;
       new Thread() {
         @Override
         public void run() {
           try {
-            Thread.sleep(startTime - System.currentTimeMillis() + 100);
+            Thread.sleep(startTime - Clock.accurateForwardProgressingMillis() + 100);
           } catch (InterruptedException e) {
             e.printStackTrace();
             return;
@@ -67,9 +68,7 @@ public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends Abst
       }.start();
     }
 
-    while (System.currentTimeMillis() - startTime < RUN_TIME) {
-      spin(500000); // spin for 1/2 millisecond
-    }
+    Thread.sleep(RUN_TIME);
 
     run = false;
     for (int i = 0; i < submitterQty; i++) {

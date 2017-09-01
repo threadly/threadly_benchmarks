@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.wrapper.KeyDistributedScheduler;
+import org.threadly.util.Clock;
 
 /**
  * This benchmark is good at creating very large queues for the distributor key.
@@ -12,7 +13,7 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
   private static final int SCHEDULE_DELAY = 1;
   private static final Object DISTRIBUTOR_KEY = "foo";
   
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     new KeyDistributedExecutorManySubmitterBenchmark(Integer.parseInt(args[1]))
             .run(Boolean.parseBoolean(args[0]));
   }
@@ -43,8 +44,8 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
     }
   }
   
-  protected void run(final boolean schedule) {
-    long startTime = System.currentTimeMillis();
+  protected void run(final boolean schedule) throws InterruptedException {
+    long startTime = Clock.accurateForwardProgressingMillis();
     for (int i = 0; i < submitterQty; i++) {
       final int index = i;
       executor.schedule(new Runnable() {
@@ -70,12 +71,10 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
           
           lastRunnable.set(index, dr);
         }
-      }, startTime - System.currentTimeMillis() + 100);
+      }, startTime - Clock.accurateForwardProgressingMillis() + 100);
     }
 
-    while (System.currentTimeMillis() - startTime < RUN_TIME) {
-      spin(500000); // spin for 1/2 millisecond
-    }
+    Thread.sleep(RUN_TIME);
 
     run = false;
     for (int i = 0; i < submitterQty; i++) {
