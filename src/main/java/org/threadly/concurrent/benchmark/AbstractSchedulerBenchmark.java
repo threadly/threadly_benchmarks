@@ -50,13 +50,13 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
       p.start();
     }
 
-    long startTime = Clock.accurateTimeMillis();
+    long startTime = Clock.accurateForwardProgressingMillis();
     Iterator<Runnable> it = runnables.iterator();
     while (it.hasNext()) {
-      initialSchedule(it.next(), startTime - System.currentTimeMillis() + RUNNABLE_ADD_TIME);
+      initialSchedule(it.next(), startTime - Clock.accurateForwardProgressingMillis() + RUNNABLE_ADD_TIME);
     }
     
-    Thread.sleep(startTime - System.currentTimeMillis() + RUNNABLE_ADD_TIME);
+    Thread.sleep(startTime - Clock.accurateForwardProgressingMillis() + RUNNABLE_ADD_TIME);
     
     Thread.sleep(RUN_TIME);
     
