@@ -29,9 +29,8 @@ public class BenchmarkCollectionRunner {
   protected static final List<BenchmarkCase> BENCHMARKS_TO_RUN;
   
   static {
-    SCHEDULER = new PriorityScheduler(2);
-    SCHEDULER.prestartAllThreads();
-    SCHEDULER.setPoolSize(16);
+    SCHEDULER = new PriorityScheduler(4, 16, 10_000);
+    SCHEDULER.prestartAllCoreThreads();
     
     ArrayList<BenchmarkCase> toRun = new ArrayList<>();
     

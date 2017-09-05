@@ -28,8 +28,8 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
   
   public KeyDistributedExecutorUniqueKeyBenchmark(int submitterQty) {
     this.submitterQty = submitterQty;
-    scheduler = new PriorityScheduler(submitterQty * 2);
-    scheduler.prestartAllThreads();
+    scheduler = new PriorityScheduler(submitterQty * 2, submitterQty * 2, 10_000);
+    scheduler.prestartAllCoreThreads();
     distributor = new KeyDistributedScheduler(scheduler);
     lastRunnable = new AtomicReferenceArray<DistributorRunnable>(submitterQty);
   }

@@ -22,8 +22,8 @@ public class PrioritySchedulerExecuteBenchmark extends AbstractSchedulerExecuteB
     super(threadRunTime);
     
     // change to StrictPriorityScheduler for testing logic (and then run inside eclipse)
-    scheduler = new PriorityScheduler(poolSize, TaskPriority.High, 0);
-    scheduler.prestartAllThreads();
+    scheduler = new PriorityScheduler(poolSize, poolSize, 10_000, TaskPriority.High, 0);
+    scheduler.prestartAllCoreThreads();
   }
 
   @Override

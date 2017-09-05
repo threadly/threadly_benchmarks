@@ -19,8 +19,8 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
   private static final KeyDistributedScheduler DISTRIBUTOR;
   
   static {
-    EXECUTOR = new PriorityScheduler(POOL_SIZE);
-    EXECUTOR.prestartAllThreads();
+    EXECUTOR = new PriorityScheduler(POOL_SIZE, POOL_SIZE, 10_000);
+    EXECUTOR.prestartAllCoreThreads();
     DISTRIBUTOR = new KeyDistributedScheduler(EXECUTOR);
   }
   

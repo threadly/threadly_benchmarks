@@ -21,8 +21,8 @@ public class PrioritySchedulerStatisticTrackerExecuteBenchmark extends AbstractS
   public PrioritySchedulerStatisticTrackerExecuteBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
-    scheduler = new PrioritySchedulerStatisticTracker(poolSize, TaskPriority.High, 0);
-    scheduler.prestartAllThreads();
+    scheduler = new PrioritySchedulerStatisticTracker(poolSize, poolSize, 10_000, TaskPriority.High, 0);
+    scheduler.prestartAllCoreThreads();
   }
 
   @Override

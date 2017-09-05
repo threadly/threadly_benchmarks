@@ -23,8 +23,8 @@ public class SubmitterSchedulerLimiterRecurringBenchmark extends AbstractSchedul
   public SubmitterSchedulerLimiterRecurringBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
-    originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
-    originalExecutor.prestartAllThreads();
+    originalExecutor = new PriorityScheduler(poolSize, poolSize, 10_000, TaskPriority.High, 0);
+    originalExecutor.prestartAllCoreThreads();
     executor = new SimpleSchedulerLimiter(originalExecutor, Integer.MAX_VALUE);
   }
   

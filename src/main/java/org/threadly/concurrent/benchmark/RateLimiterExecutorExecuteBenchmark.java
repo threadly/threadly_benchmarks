@@ -22,7 +22,7 @@ public class RateLimiterExecutorExecuteBenchmark extends AbstractSchedulerExecut
   public RateLimiterExecutorExecuteBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
-    originalExecutor = new PriorityScheduler(poolSize);
+    originalExecutor = new PriorityScheduler(poolSize, poolSize, 10_000);
     executor = new ExecutorSchedulerAdapter(new RateLimiterExecutor(originalExecutor, 
                                                                     Integer.MAX_VALUE));
   }

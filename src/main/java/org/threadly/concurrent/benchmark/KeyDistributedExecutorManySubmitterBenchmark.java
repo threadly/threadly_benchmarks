@@ -26,8 +26,8 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
   private final AtomicReferenceArray<DistributorRunnable> lastRunnable;
   
   public KeyDistributedExecutorManySubmitterBenchmark(int submitterQty) {
-    executor = new PriorityScheduler(submitterQty * 2);
-    executor.prestartAllThreads();
+    executor = new PriorityScheduler(submitterQty * 2, submitterQty * 2, 10_000);
+    executor.prestartAllCoreThreads();
     distributor = new KeyDistributedScheduler(executor);
     this.submitterQty = submitterQty;
     
