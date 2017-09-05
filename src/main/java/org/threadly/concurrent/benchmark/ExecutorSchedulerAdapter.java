@@ -6,7 +6,6 @@ import java.util.concurrent.Executor;
 
 import org.threadly.concurrent.AbstractSubmitterScheduler;
 import org.threadly.util.Clock;
-import org.threadly.util.ExceptionUtils;
 
 public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
   private final Executor executor;
@@ -55,7 +54,7 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
               
               Runnable task;
               while ((task = taskQueue.poll()) != null) {
-                ExceptionUtils.runRunnable(task);
+                task.run();
               }
             }
           }).start();
@@ -73,8 +72,7 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
               while (Clock.accurateForwardProgressingMillis() - startTime < delayInMillis) {
                 Thread.yield();
               }
-              
-              ExceptionUtils.runRunnable(task);
+              task.run();
             }
           }).start();
         }

@@ -52,7 +52,7 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
         while (run) {
           int runCount;
           try {
-            runCount = scheduler.tick(null);
+            runCount = scheduler.tick();
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             // should not be possible
