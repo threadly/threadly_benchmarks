@@ -6,11 +6,41 @@ import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.concurrent.future.ListenableFutureTask;
 
-public abstract class AbstractSubmitterScheduler extends AbstractSubmitterExecutor
-                                                 implements SubmitterSchedulerInterface {
+public abstract class AbstractSubmitterScheduler implements SubmitterSchedulerInterface {
   @Override
-  protected void doExecute(Runnable task) {
+  public void execute(Runnable task) {
     doSchedule(task, 0);
+  }
+
+  @Override
+  public ListenableFuture<?> submit(Runnable task) {
+    return submit(task, null);
+  }
+
+  @Override
+  public <T> ListenableFuture<T> submit(Runnable task, T result) {
+    if (task == null) {
+      throw new IllegalArgumentException("Must provide task");
+    }
+    
+    ListenableFutureTask<T> lft = new ListenableFutureTask<T>(false, task, result);
+
+    doSchedule(lft, 0);
+    
+    return lft;
+  }
+
+  @Override
+  public <T> ListenableFuture<T> submit(Callable<T> task) {
+    if (task == null) {
+      throw new IllegalArgumentException("Must provide task");
+    }
+    
+    ListenableFutureTask<T> lft = new ListenableFutureTask<T>(false, task);
+
+    doSchedule(lft, 0);
+    
+    return lft;
   }
 
   /**
