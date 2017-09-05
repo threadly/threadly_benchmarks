@@ -53,7 +53,7 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
           DistributorRunnable dr = new DistributorRunnable();
           while (run) {
             if (schedule) {
-              distributor.scheduleTask(new Object(), dr, SCHEDULE_DELAY);
+              distributor.schedule(new Object(), dr, SCHEDULE_DELAY);
             } else {
               distributor.addTask(new Object(), dr);
             }
@@ -63,7 +63,7 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
 
           dr = new DistributorRunnable();
           if (schedule) {
-            distributor.scheduleTask(new Object(), dr, SCHEDULE_DELAY);
+            distributor.schedule(new Object(), dr, SCHEDULE_DELAY);
           } else {
             distributor.addTask(new Object(), dr);
           }

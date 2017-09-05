@@ -73,7 +73,7 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
       }
       
       if (schedule) {
-        DISTRIBUTOR.scheduleTask(this, this, SCHEDULE_DELAY);
+        DISTRIBUTOR.schedule(this, this, SCHEDULE_DELAY);
       } else {
         DISTRIBUTOR.addTask(this, this);
       }
