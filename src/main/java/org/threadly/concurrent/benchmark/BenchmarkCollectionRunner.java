@@ -13,7 +13,7 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.TransactionCallback;
 import org.skife.jdbi.v2.TransactionStatus;
-import org.threadly.concurrent.PriorityScheduler;
+import org.threadly.concurrent.PriorityScheduledExecutor;
 import org.threadly.concurrent.benchmark.dao.BenchmarkDao;
 import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.util.ExceptionUtils;
@@ -25,11 +25,11 @@ public class BenchmarkCollectionRunner {
   protected static final boolean DISCARD_FIRST_RUN = false;
   protected static final String SHELL = "bash";
   protected static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx4g -Xms2048m -Xss256k ";
-  protected static final PriorityScheduler SCHEDULER;
+  protected static final PriorityScheduledExecutor SCHEDULER;
   protected static final List<BenchmarkCase> BENCHMARKS_TO_RUN;
   
   static {
-    SCHEDULER = new PriorityScheduler(4, 16, 10_000);
+    SCHEDULER = new PriorityScheduledExecutor(4, 16, 10_000);
     SCHEDULER.prestartAllCoreThreads();
     
     ArrayList<BenchmarkCase> toRun = new ArrayList<>();

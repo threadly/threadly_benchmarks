@@ -1,6 +1,6 @@
 package org.threadly.concurrent.benchmark;
 
-import org.threadly.concurrent.PriorityScheduler;
+import org.threadly.concurrent.PriorityScheduledExecutor;
 import org.threadly.concurrent.TaskSchedulerDistributor;
 
 /**
@@ -15,11 +15,11 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
   private static final int SCHEDULE_DELAY = 1;
   private static final int POOL_SIZE = 4;
   private static final int QUEUE_SIZE = 1000;
-  private static final PriorityScheduler EXECUTOR;
+  private static final PriorityScheduledExecutor EXECUTOR;
   private static final TaskSchedulerDistributor DISTRIBUTOR;
   
   static {
-    EXECUTOR = new PriorityScheduler(POOL_SIZE, POOL_SIZE, 10_000);
+    EXECUTOR = new PriorityScheduledExecutor(POOL_SIZE, POOL_SIZE, 10_000);
     EXECUTOR.prestartAllCoreThreads();
     DISTRIBUTOR = new TaskSchedulerDistributor(EXECUTOR);
   }

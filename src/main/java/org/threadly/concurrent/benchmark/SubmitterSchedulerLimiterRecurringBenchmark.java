@@ -1,6 +1,6 @@
 package org.threadly.concurrent.benchmark;
 
-import org.threadly.concurrent.PriorityScheduler;
+import org.threadly.concurrent.PriorityScheduledExecutor;
 import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.TaskPriority;
 import org.threadly.concurrent.limiter.SimpleSchedulerLimiter;
@@ -17,13 +17,13 @@ public class SubmitterSchedulerLimiterRecurringBenchmark extends AbstractSchedul
     }
   }
 
-  protected final PriorityScheduler originalExecutor;
+  protected final PriorityScheduledExecutor originalExecutor;
   protected final SubmitterSchedulerInterface executor;
   
   public SubmitterSchedulerLimiterRecurringBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
-    originalExecutor = new PriorityScheduler(poolSize, poolSize, 10_000, TaskPriority.High, 0);
+    originalExecutor = new PriorityScheduledExecutor(poolSize, poolSize, 10_000, TaskPriority.High, 0);
     originalExecutor.prestartAllCoreThreads();
     executor = new SimpleSchedulerLimiter(originalExecutor, Integer.MAX_VALUE);
   }
