@@ -115,12 +115,11 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 PrioritySchedulerScheduleBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
-                                UnfairExecutorExecuteBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                UnfairExecutorExecuteBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
+    
+    // increment for skipped UnfairExecutor benchmarks
+    classGroup++;
+    benchmarkGroup += 2;
+    
     String[][] singleThreadSchedulerArgs = new String[][] {{"1"}, {""}};
     String[][] singleThreadSchedulerArgsNpOp = new String[][] {{"0"}, {"NoOp"}};
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
@@ -170,12 +169,8 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyedLimiterExecuteBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyedLimiterExecuteUnfairExecutorBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyedLimiterExecuteUnfairExecutorBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
+    // skip UnfairExecutor backed KeyedLimiter benchmarks
+    benchmarkGroup += 2;
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyedLimiterRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
@@ -194,12 +189,8 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedSchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyDistributedSchedulerExecuteUnfairExecutorBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyDistributedSchedulerExecuteUnfairExecutorBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
+    // skip UnfairExecutor backed KeyedLimiter benchmarks
+    benchmarkGroup += 2;
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedSchedulerRecurringBenchmark.class, 
                                 executeScheduleRecurringThreadCases));
@@ -240,9 +231,8 @@ public class BenchmarkCollectionRunner {
                                                 "true 32", "true 64"}, 
                                                {"Schedule2", "Schedule4", "Schedule8", "Schedule16", 
                                                 "Schedule32", "Schedule64"}}));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark.class, 
-                                new String[]{"2", "4", "8", "16", "32", "64"}));
+    // skip UnfairExecutor backed KeyedLimiter benchmarks
+    benchmarkGroup++;
     
     // Statistic trackers
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
@@ -263,24 +253,9 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 PrioritySchedulerStatisticTrackerScheduleBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
-                                SingleThreadSchedulerStatisticTrackerExecuteBenchmark.class, 
-                                singleThreadSchedulerArgs));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerStatisticTrackerExecuteBenchmark.class, 
-                                singleThreadSchedulerArgsNpOp));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerStatisticTrackerRecurringBenchmark.class, 
-                                singleThreadSchedulerArgs));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerStatisticTrackerRecurringBenchmark.class, 
-                                singleThreadSchedulerArgsNpOp));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerStatisticTrackerScheduleBenchmark.class, 
-                                singleThreadSchedulerArgs));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerStatisticTrackerScheduleBenchmark.class, 
-                                singleThreadSchedulerArgsNpOp));
+    // skip SingleThreadSchedulerStatisticTracker benchmarks
+    benchmarkGroup += 6;
+    classGroup++;
     
     toRun.trimToSize();
     BENCHMARKS_TO_RUN = Collections.unmodifiableList(toRun);

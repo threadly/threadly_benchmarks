@@ -1,8 +1,8 @@
 package org.threadly.concurrent.benchmark;
 
+import org.threadly.concurrent.PrioritySchedulerStatisticTracker;
 import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.TaskPriority;
-import org.threadly.concurrent.statistics.PrioritySchedulerStatisticTracker;
 
 public class PrioritySchedulerStatisticTrackerRecurringBenchmark extends AbstractSchedulerRecurringBenchmark {
   public static void main(String args[]) {
