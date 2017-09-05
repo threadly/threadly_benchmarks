@@ -1,7 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
 import org.threadly.concurrent.PriorityScheduler;
-import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.limiter.RateLimiterExecutor;
 
 public class RateLimiterExecutorExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
@@ -17,7 +17,7 @@ public class RateLimiterExecutorExecuteBenchmark extends AbstractSchedulerExecut
   }
 
   protected final PriorityScheduler originalExecutor;
-  protected final SubmitterScheduler executor;
+  protected final SubmitterSchedulerInterface executor;
   
   public RateLimiterExecutorExecuteBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
@@ -28,7 +28,7 @@ public class RateLimiterExecutorExecuteBenchmark extends AbstractSchedulerExecut
   }
   
   @Override
-  protected SubmitterScheduler getScheduler() {
+  protected SubmitterSchedulerInterface getScheduler() {
     return executor;
   }
 

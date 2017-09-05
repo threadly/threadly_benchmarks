@@ -4,7 +4,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.RejectedExecutionException;
 
-import org.threadly.util.ExceptionHandler;
+import org.threadly.util.ExceptionHandlerInterface;
 import org.threadly.util.ExceptionUtils;
 
 public abstract class AbstractBenchmark {
@@ -15,7 +15,7 @@ public abstract class AbstractBenchmark {
   protected static final String OUTPUT_DELIM = ": ";
   
   static {
-    ExceptionUtils.setDefaultExceptionHandler(new ExceptionHandler() {
+    ExceptionUtils.setDefaultExceptionHandler(new ExceptionHandlerInterface() {
       @Override
       public void handleException(Throwable thrown) {
         if (thrown instanceof RejectedExecutionException) {

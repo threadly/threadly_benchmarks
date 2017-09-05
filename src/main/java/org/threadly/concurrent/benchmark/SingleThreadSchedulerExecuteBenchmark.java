@@ -1,7 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
 import org.threadly.concurrent.SingleThreadScheduler;
-import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.SubmitterSchedulerInterface;
 
 public class SingleThreadSchedulerExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
 
@@ -26,7 +26,7 @@ public class SingleThreadSchedulerExecuteBenchmark extends AbstractSchedulerExec
   }
 
   @Override
-  protected SubmitterScheduler getScheduler() {
+  protected SubmitterSchedulerInterface getScheduler() {
     return EXECUTOR;
   }
 

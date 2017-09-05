@@ -67,15 +67,15 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
     protected void addSelf(boolean schedule) {
       if (firstAdd) {
         for (int i = 1; i < QUEUE_SIZE; i++) {
-          DISTRIBUTOR.execute(this, this);
+          DISTRIBUTOR.addTask(this, this);
         }
         firstAdd = false;
       }
       
       if (schedule) {
-        DISTRIBUTOR.schedule(this, this, SCHEDULE_DELAY);
+        DISTRIBUTOR.scheduleTask(this, this, SCHEDULE_DELAY);
       } else {
-        DISTRIBUTOR.execute(this, this);
+        DISTRIBUTOR.addTask(this, this);
       }
     }
   }

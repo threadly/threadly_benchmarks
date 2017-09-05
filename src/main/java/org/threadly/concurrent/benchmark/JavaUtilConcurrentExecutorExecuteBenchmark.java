@@ -4,7 +4,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.SubmitterSchedulerInterface;
 
 public class JavaUtilConcurrentExecutorExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {
@@ -19,7 +19,7 @@ public class JavaUtilConcurrentExecutorExecuteBenchmark extends AbstractSchedule
   }
   
   protected final ThreadPoolExecutor originalExecutor;
-  protected final SubmitterScheduler executor;
+  protected final SubmitterSchedulerInterface executor;
   
   public JavaUtilConcurrentExecutorExecuteBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
@@ -32,7 +32,7 @@ public class JavaUtilConcurrentExecutorExecuteBenchmark extends AbstractSchedule
   }
 
   @Override
-  protected SubmitterScheduler getScheduler() {
+  protected SubmitterSchedulerInterface getScheduler() {
     return executor;
   }
 

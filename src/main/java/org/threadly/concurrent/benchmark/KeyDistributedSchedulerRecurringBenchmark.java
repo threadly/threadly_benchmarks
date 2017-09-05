@@ -2,7 +2,7 @@ package org.threadly.concurrent.benchmark;
 
 import org.threadly.concurrent.KeyDistributedScheduler;
 import org.threadly.concurrent.PriorityScheduler;
-import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.TaskPriority;
 
 public class KeyDistributedSchedulerRecurringBenchmark extends AbstractSchedulerRecurringBenchmark {
@@ -29,7 +29,7 @@ public class KeyDistributedSchedulerRecurringBenchmark extends AbstractScheduler
   }
 
   @Override
-  protected SubmitterScheduler getScheduler() {
+  protected SubmitterSchedulerInterface getScheduler() {
     return keyScheduler.getSubmitterSchedulerForKey(new Object());
   }
 

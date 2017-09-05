@@ -1,9 +1,9 @@
 package org.threadly.concurrent.benchmark;
 
 import org.threadly.concurrent.PriorityScheduler;
-import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.TaskPriority;
-import org.threadly.concurrent.limiter.SubmitterSchedulerLimiter;
+import org.threadly.concurrent.limiter.SimpleSchedulerLimiter;
 
 public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {
@@ -18,18 +18,18 @@ public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractScheduler
   }
 
   protected final PriorityScheduler originalExecutor;
-  protected final SubmitterScheduler executor;
+  protected final SubmitterSchedulerInterface executor;
   
   public SubmitterSchedulerLimiterExecuteBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
     originalExecutor = new PriorityScheduler(poolSize, TaskPriority.High, 0);
     originalExecutor.prestartAllThreads();
-    executor = new SubmitterSchedulerLimiter(originalExecutor, Integer.MAX_VALUE);
+    executor = new SimpleSchedulerLimiter(originalExecutor, Integer.MAX_VALUE);
   }
   
   @Override
-  protected SubmitterScheduler getScheduler() {
+  protected SubmitterSchedulerInterface getScheduler() {
     return executor;
   }
 

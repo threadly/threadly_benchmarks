@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.util.Clock;
 import org.threadly.util.debug.Profiler;
 
@@ -24,7 +24,7 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     this.threadRunTime = threadRunTime;
   }
   
-  protected abstract SubmitterScheduler getScheduler();
+  protected abstract SubmitterSchedulerInterface getScheduler();
   
   protected abstract void shutdownScheduler();
   

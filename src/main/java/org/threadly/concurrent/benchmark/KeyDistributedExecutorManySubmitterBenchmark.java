@@ -54,9 +54,9 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
           DistributorRunnable dr = new DistributorRunnable();
           while (run) {
             if (schedule) {
-              distributor.schedule(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
+              distributor.scheduleTask(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
             } else {
-              distributor.execute(DISTRIBUTOR_KEY, dr);
+              distributor.addTask(DISTRIBUTOR_KEY, dr);
             }
             
             //spin(100);
@@ -64,9 +64,9 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
 
           dr = new DistributorRunnable();
           if (schedule) {
-            distributor.schedule(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
+            distributor.scheduleTask(DISTRIBUTOR_KEY, dr, SCHEDULE_DELAY);
           } else {
-            distributor.execute(DISTRIBUTOR_KEY, dr);
+            distributor.addTask(DISTRIBUTOR_KEY, dr);
           }
           
           lastRunnable.set(index, dr);

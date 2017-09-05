@@ -3,7 +3,7 @@ package org.threadly.concurrent.benchmark;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.threadly.concurrent.ScheduledExecutorServiceWrapper;
-import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.SubmitterSchedulerInterface;
 
 public class JavaUtilConcurrentSchedulerScheduleBenchmark extends AbstractSchedulerScheduleBenchmark {
   public static void main(String args[]) {
@@ -18,7 +18,7 @@ public class JavaUtilConcurrentSchedulerScheduleBenchmark extends AbstractSchedu
   }
   
   protected final ScheduledThreadPoolExecutor originalExecutor;
-  protected final SubmitterScheduler executor;
+  protected final SubmitterSchedulerInterface executor;
   
   public JavaUtilConcurrentSchedulerScheduleBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
@@ -29,7 +29,7 @@ public class JavaUtilConcurrentSchedulerScheduleBenchmark extends AbstractSchedu
   }
 
   @Override
-  protected SubmitterScheduler getScheduler() {
+  protected SubmitterSchedulerInterface getScheduler() {
     return executor;
   }
 

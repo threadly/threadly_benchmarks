@@ -163,26 +163,9 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 SubmitterSchedulerLimiterScheduleBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
-                                KeyedLimiterExecuteBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyedLimiterExecuteBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
-    // skip UnfairExecutor backed KeyedLimiter benchmarks
-    benchmarkGroup += 2;
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyedLimiterRecurringBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyedLimiterRecurringBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyedLimiterScheduleBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                KeyedLimiterScheduleBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
+    // skip KeyedLimiter benchmarks
+    benchmarkGroup += 8;
+    classGroup++;
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
                                 KeyDistributedSchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringThreadCases));

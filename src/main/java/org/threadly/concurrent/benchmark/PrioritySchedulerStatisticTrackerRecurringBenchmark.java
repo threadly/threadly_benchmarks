@@ -1,7 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
 import org.threadly.concurrent.PrioritySchedulerStatisticTracker;
-import org.threadly.concurrent.SubmitterScheduler;
+import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.TaskPriority;
 
 public class PrioritySchedulerStatisticTrackerRecurringBenchmark extends AbstractSchedulerRecurringBenchmark {
@@ -26,7 +26,7 @@ public class PrioritySchedulerStatisticTrackerRecurringBenchmark extends Abstrac
   }
 
   @Override
-  protected SubmitterScheduler getScheduler() {
+  protected SubmitterSchedulerInterface getScheduler() {
     return scheduler;
   }
 
