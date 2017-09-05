@@ -22,7 +22,7 @@ public abstract class AbstractSchedulerExecuteBenchmark extends AbstractSchedule
     @Override
     public void run() {
       if (run) {
-        long startTime = threadRunTime > 0 ? Clock.accurateForwardProgressingMillis() : -1;
+        long startTime = threadRunTime > 0 ? Clock.accurateTimeMillis() : -1;
         countArray.incrementAndGet(index);
 
         doThreadWork(startTime);

@@ -22,24 +22,19 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
   }
 
   @Override
-  public void scheduleAtFixedRate(Runnable task, long initialDelay, long period) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   protected void doSchedule(final Runnable task, final long delayInMillis) {
     if (delayInMillis > 0) {
       // Create a new thread / task queue if our clock has advanced, requested delay has changed, 
       // or we have queued a lot for the previous thread (we want to start these tasks as fast as possible)
       Pair<Long, Queue<Runnable>> scheduledTaskQueue = this.scheduledTaskQueue;
-      if (Clock.lastKnownForwardProgressingMillis() != lastScheduledTime || 
+      if (Clock.lastKnownTimeMillis() != lastScheduledTime || 
           scheduledTaskQueue == null || scheduledTaskQueue.getLeft() != delayInMillis || 
           scheduledTaskQueue.getRight().size() >= 100) {
         if (delayInMillis > 100) {
           final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<>();
           taskQueue.add(task);
           this.scheduledTaskQueue = new Pair<>(delayInMillis, taskQueue);
-          lastScheduledTime = Clock.lastKnownForwardProgressingMillis();
+          lastScheduledTime = Clock.lastKnownTimeMillis();
   
           new Thread(new Runnable() {
             @Override
@@ -65,11 +60,11 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
             // Considering this is only used in benchmarks, this should be an unlikely condition
             System.out.println("WARNING: Short delay task(s)!");
           }
-          final long startTime = Clock.accurateForwardProgressingMillis();
+          final long startTime = Clock.accurateTimeMillis();
           new Thread(new Runnable() {
             @Override
             public void run() {
-              while (Clock.accurateForwardProgressingMillis() - startTime < delayInMillis) {
+              while (Clock.accurateTimeMillis() - startTime < delayInMillis) {
                 Thread.yield();
               }
               task.run();

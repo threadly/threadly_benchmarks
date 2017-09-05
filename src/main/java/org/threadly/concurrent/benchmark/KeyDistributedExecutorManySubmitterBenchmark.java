@@ -45,7 +45,7 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
   }
   
   protected void run(final boolean schedule) throws InterruptedException {
-    long startTime = Clock.accurateForwardProgressingMillis();
+    long startTime = Clock.accurateTimeMillis();
     for (int i = 0; i < submitterQty; i++) {
       final int index = i;
       executor.schedule(new Runnable() {
@@ -71,7 +71,7 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
           
           lastRunnable.set(index, dr);
         }
-      }, startTime - Clock.accurateForwardProgressingMillis() + 100);
+      }, startTime - Clock.accurateTimeMillis() + 100);
     }
 
     Thread.sleep(RUN_TIME);
