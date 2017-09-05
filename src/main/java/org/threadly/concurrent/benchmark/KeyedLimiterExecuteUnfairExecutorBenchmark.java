@@ -2,7 +2,7 @@ package org.threadly.concurrent.benchmark;
 
 import org.threadly.concurrent.SubmitterScheduler;
 import org.threadly.concurrent.UnfairExecutor;
-import org.threadly.concurrent.wrapper.limiter.KeyedExecutorLimiter;
+import org.threadly.concurrent.limiter.KeyedExecutorLimiter;
 
 public class KeyedLimiterExecuteUnfairExecutorBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {

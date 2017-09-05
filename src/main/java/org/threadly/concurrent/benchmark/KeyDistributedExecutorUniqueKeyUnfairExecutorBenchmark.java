@@ -3,8 +3,8 @@ package org.threadly.concurrent.benchmark;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
+import org.threadly.concurrent.KeyDistributedExecutor;
 import org.threadly.concurrent.UnfairExecutor;
-import org.threadly.concurrent.wrapper.KeyDistributedExecutor;
 import org.threadly.util.Clock;
 
 /**
