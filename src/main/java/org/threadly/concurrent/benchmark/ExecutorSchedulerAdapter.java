@@ -7,7 +7,6 @@ import java.util.concurrent.Executor;
 import org.threadly.concurrent.AbstractSubmitterScheduler;
 import org.threadly.util.Clock;
 import org.threadly.util.ExceptionUtils;
-import org.threadly.util.Pair;
 
 public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
   private final Executor executor;

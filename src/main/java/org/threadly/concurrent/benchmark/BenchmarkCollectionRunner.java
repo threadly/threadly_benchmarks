@@ -189,7 +189,7 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedSchedulerExecuteBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
-    // skip UnfairExecutor backed KeyedLimiter benchmarks
+    // skip UnfairExecutor backed KeyDistributedExecutor benchmarks
     benchmarkGroup += 2;
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedSchedulerRecurringBenchmark.class, 
@@ -231,7 +231,7 @@ public class BenchmarkCollectionRunner {
                                                 "true 32", "true 64"}, 
                                                {"Schedule2", "Schedule4", "Schedule8", "Schedule16", 
                                                 "Schedule32", "Schedule64"}}));
-    // skip UnfairExecutor backed KeyedLimiter benchmarks
+    // skip UnfairExecutor backed KeyDistributedExecutor benchmarks
     benchmarkGroup++;
     
     // Statistic trackers
