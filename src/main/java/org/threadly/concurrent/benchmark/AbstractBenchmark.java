@@ -1,11 +1,9 @@
 package org.threadly.concurrent.benchmark;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.RejectedExecutionException;
-
-import org.threadly.util.ExceptionHandlerInterface;
-import org.threadly.util.ExceptionUtils;
 
 public abstract class AbstractBenchmark {
   protected static final int RUN_TIME = 1000 * 60;
@@ -15,9 +13,9 @@ public abstract class AbstractBenchmark {
   protected static final String OUTPUT_DELIM = ": ";
   
   static {
-    ExceptionUtils.setDefaultExceptionHandler(new ExceptionHandlerInterface() {
+    Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
       @Override
-      public void handleException(Throwable thrown) {
+      public void uncaughtException(Thread thread, Throwable thrown) {
         if (thrown instanceof RejectedExecutionException || 
             (thrown instanceof IllegalStateException && thrown.getMessage().contains("shutdown"))) {
           // ignore
