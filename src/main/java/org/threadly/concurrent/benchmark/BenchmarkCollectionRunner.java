@@ -17,7 +17,6 @@ import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.benchmark.dao.BenchmarkDao;
 import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.util.ExceptionUtils;
-import org.threadly.util.StringUtils;
 
 public class BenchmarkCollectionRunner {
   protected static final int RUN_COUNT = 5;
@@ -268,8 +267,8 @@ public class BenchmarkCollectionRunner {
                                  "cd " + sourceFolder.getAbsolutePath() + " ; git log | head -n 1"};
     ExecResult gitCommitResult = runCommand(gitCommitCommand);
     String commitPrefix = "commit ";
-    if (! StringUtils.isNullOrEmpty(gitCommitResult.stdErr) || 
-        StringUtils.isNullOrEmpty(gitCommitResult.stdOut) || ! gitCommitResult.stdOut.startsWith(commitPrefix)) {
+    if (! gitCommitResult.stdErr.isEmpty() || 
+        gitCommitResult.stdOut.isEmpty() || ! gitCommitResult.stdOut.startsWith(commitPrefix)) {
       System.err.println("Unable to detect git commit");
       System.err.println(gitCommitResult.stdErr);
       System.err.println(gitCommitResult.stdOut);
@@ -280,7 +279,7 @@ public class BenchmarkCollectionRunner {
     String[] gitBranchCommand = {SHELL, "-c", 
                                  "cd " + sourceFolder.getAbsolutePath() + " ; git rev-parse --abbrev-ref HEAD"};
     ExecResult gitBranchResult = runCommand(gitBranchCommand);
-    if (! StringUtils.isNullOrEmpty(gitBranchResult.stdErr) || StringUtils.isNullOrEmpty(gitBranchResult.stdOut)) {
+    if (! gitBranchResult.stdErr.isEmpty() || gitBranchResult.stdOut.isEmpty()) {
       System.err.println("Unable to detect git branch");
       System.err.println(gitCommitResult.stdErr);
       System.err.println(gitCommitResult.stdOut);
@@ -291,7 +290,7 @@ public class BenchmarkCollectionRunner {
       String[] gitTagCommand = {SHELL, "-c", 
                                 "cd " + sourceFolder.getAbsolutePath() + " ; git describe --abbrev=0 --tags"};
       ExecResult gitTagResult = runCommand(gitTagCommand);
-      if (! StringUtils.isNullOrEmpty(gitTagResult.stdErr) || StringUtils.isNullOrEmpty(gitTagResult.stdOut)) {
+      if (! gitTagResult.stdErr.isEmpty() || gitTagResult.stdOut.isEmpty()) {
         System.err.println("Unable to detect git tag");
         System.err.println(gitTagResult.stdErr);
         System.err.println(gitTagResult.stdOut);
@@ -315,10 +314,13 @@ public class BenchmarkCollectionRunner {
       for (int i = 0; i < bc.executionArgs[0].length; i++) {
         results[i] = runBenchmarkSet(benchmarkClasspath, 
                                      bc.benchmarkClass, bc.executionArgs[0][i]);
-        if (StringUtils.isNullOrEmpty(results[i].errorOutput)) {
+        if (results[i].errorOutput.isEmpty()) {
           String ident = bc.benchmarkClass.getSimpleName() + bc.executionArgs[1][i] + ": ";
           long executionsPerSecond = (results[i].resultValue / (AbstractBenchmark.RUN_TIME / 1000));
-          System.out.println(StringUtils.padEnd(ident, 60, ' ') + executionsPerSecond);
+          while (ident.length() < 60) {
+            ident += " ";
+          }
+          System.out.println(ident + executionsPerSecond);
         } else {
           System.out.println("Error in running test: " + 
                                bc.benchmarkClass.getSimpleName() + bc.executionArgs[1][i]);
@@ -338,7 +340,7 @@ public class BenchmarkCollectionRunner {
             
             for (int i = 0; i < results.length; i++) {
               BenchmarkResult br = results[i];
-              if (StringUtils.isNullOrEmpty(br.errorOutput)) {
+              if (br.errorOutput.isEmpty()) {
                 String ident = bc.benchmarkClass.getSimpleName().replaceAll("Benchmark", "") + 
                                  bc.executionArgs[1][i];
                 benchmarkDbi.addRecord(bc.benchmarkGroup, bc.classGroup, nextBenchmarkGroupRunId, 
@@ -384,7 +386,7 @@ public class BenchmarkCollectionRunner {
     System.gc();
     try {
       ExecResult runResult = runCommand(command);
-      if (StringUtils.isNullOrEmpty(runResult.stdErr)) {
+      if (runResult.stdErr.isEmpty()) {
         int delimIndex = runResult.stdOut.indexOf(AbstractBenchmark.OUTPUT_DELIM);
         if (delimIndex > 0) {
           delimIndex += AbstractBenchmark.OUTPUT_DELIM.length();
@@ -440,7 +442,7 @@ public class BenchmarkCollectionRunner {
     
     public BenchmarkResult(String errorOutput) {
       this.resultValue = -1;
-      this.errorOutput = StringUtils.nullToEmpty(errorOutput);
+      this.errorOutput = errorOutput == null ? "" : errorOutput.trim();
     }
   }
   
@@ -474,8 +476,8 @@ public class BenchmarkCollectionRunner {
     
     public ExecResult(int code, String stdOut, String stdErr) {
       this.code = code;
-      this.stdOut = StringUtils.nullToEmpty(stdOut).trim();
-      this.stdErr = StringUtils.nullToEmpty(stdErr).trim();
+      this.stdOut = stdOut == null ? "" : stdOut.trim();
+      this.stdErr = stdErr == null ? "" : stdErr.trim();
     }
   }
   

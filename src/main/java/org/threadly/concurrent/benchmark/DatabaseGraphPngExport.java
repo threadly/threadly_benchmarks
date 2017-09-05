@@ -27,7 +27,6 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 import org.skife.jdbi.v2.DBI;
 import org.threadly.concurrent.benchmark.dao.BenchmarkDao;
 import org.threadly.concurrent.benchmark.dao.RunRecord;
-import org.threadly.util.StringUtils;
 
 public class DatabaseGraphPngExport {
   private static final boolean EXPORT_GRAPHS = true;
@@ -81,7 +80,7 @@ public class DatabaseGraphPngExport {
     public abstract void generateGraphs(BenchmarkDao dao, File outputFolder) throws Exception;
     
     protected static void chartGenerated(CategoryChart chart, String writeLocation) throws IOException {
-      if (StringUtils.isNullOrEmpty(writeLocation)) {
+      if (writeLocation == null || writeLocation.isEmpty()) {
         new SwingWrapper<CategoryChart>(chart).displayChart();
         System.in.read();
       } else {
@@ -112,7 +111,7 @@ public class DatabaseGraphPngExport {
       int maxClassGroupId = dao.getMaxClassGroupId();
       for (int cg = 1; cg < maxClassGroupId; cg++) {
         String identifier = dao.getClassGroupIdentifier(cg);
-        if (StringUtils.isNullOrEmpty(identifier)) {
+        if (identifier == null || identifier.isEmpty()) {
           identifier = "cg:" + cg;
         }
         
@@ -399,11 +398,8 @@ public class DatabaseGraphPngExport {
           });
           
           String identifier = dao.getBenchmarkGroupIdentifier(bg);
-          if (StringUtils.isNullOrEmpty(identifier)) {
+          if (identifier == null || identifier.isEmpty()) {
             identifier = dao.getClassGroupIdentifier(cg) + "-" + bg;
-            if (StringUtils.isNullOrEmpty(identifier)) {
-              identifier = "cg:" + cg + "bg:" + bg;
-            }
           }
 
           CategoryChart chart = new CategoryChartBuilder().width(CHART_WIDTH)

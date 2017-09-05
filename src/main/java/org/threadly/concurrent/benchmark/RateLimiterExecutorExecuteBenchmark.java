@@ -24,7 +24,7 @@ public class RateLimiterExecutorExecuteBenchmark extends AbstractSchedulerExecut
     
     originalExecutor = new PriorityScheduler(poolSize);
     executor = new ExecutorSchedulerAdapter(new RateLimiterExecutor(originalExecutor, 
-                                                                    Double.MAX_VALUE));
+                                                                    Integer.MAX_VALUE));
   }
   
   @Override

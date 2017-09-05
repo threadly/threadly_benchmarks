@@ -1,7 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import org.threadly.concurrent.DoNothingRunnable;
+
 import org.threadly.concurrent.NoThreadScheduler;
 
 public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
@@ -31,7 +31,12 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
             Thread.yield();
           }
           while (run) {
-            scheduler.execute(DoNothingRunnable.instance());
+            scheduler.execute(new Runnable() {
+              @Override
+              public void run() {
+                // do nothing
+              }
+            });
           }
         }
       }).start();
