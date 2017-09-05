@@ -122,9 +122,8 @@ public class BenchmarkCollectionRunner {
     classGroup++;
     benchmarkGroup += 6;
     
-    // since NoThreadScheduler is the basis of SingleThreadScheduler they are in the same class group
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                NoThreadSchedulerBenchmark.class, new String[] {"4", "8", "16", "32", "64"}));
+    // skip NoThreadScheduler benchmark
+    benchmarkGroup++;
     
     // scheduler wrappers
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 

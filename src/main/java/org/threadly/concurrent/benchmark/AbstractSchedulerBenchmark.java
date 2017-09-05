@@ -7,13 +7,11 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.util.Clock;
-import org.threadly.util.debug.Profiler;
 
 public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
   protected static final int RUNNABLE_COUNT = 10000;
   protected static final int RUNNABLE_PER_COUNTER = 2; // higher numbers use less ram but may have contention
   protected static final int RUNNABLE_ADD_TIME = 1000 * 15;
-  protected static final boolean RUN_PROFILER = false;
   
   protected final int threadRunTime;
   protected final AtomicIntegerArray countArray = 
@@ -41,11 +39,6 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     for (int i = 0; i < RUNNABLE_COUNT; i++) {
       runnables.add(makeRunnable(i % countArray.length()));
     }
-    Profiler p;
-    if (RUN_PROFILER) {
-      p = new Profiler(10);
-      p.start();
-    }
 
     Iterator<Runnable> it = runnables.iterator();
     long startTime = Clock.accurateTime();
@@ -61,10 +54,6 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     Thread.sleep(1000);
     shutdownScheduler();
     
-    if (RUN_PROFILER) {
-      p.stop();
-    }
-    
     long total = 0;
     StringBuilder result = new StringBuilder();
     for(int i = 0; i < countArray.length(); i++) {
@@ -76,10 +65,6 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     }
     //System.out.println(result.toString());
     System.out.println(this.getClass().getSimpleName() + OUTPUT_DELIM + total);
-    
-    if (RUN_PROFILER) {
-      p.dump(System.out);
-    }
   }
   
   /**
