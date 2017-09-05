@@ -33,7 +33,7 @@ public abstract class AbstractSchedulerScheduleBenchmark extends AbstractSchedul
 
     @Override
     public void run() {
-      long startTime = threadRunTime > 0 ? Clock.accurateTimeMillis() : -1;
+      long startTime = threadRunTime > 0 ? Clock.accurateForwardProgressingMillis() : -1;
       if (run) {
         countArray.incrementAndGet(index);
         

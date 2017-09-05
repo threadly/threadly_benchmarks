@@ -104,10 +104,10 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
       } else {
         Math.log1p(1024);
       }
-      if (Clock.lastKnownTimeMillis() - startReferenceTime >= threadRunTime) {
+      if (Clock.lastKnownForwardProgressingMillis() - startReferenceTime >= threadRunTime) {
         break;
       } else if (++i == timeCheckIterations) {
-        if (Clock.accurateTimeMillis() - startReferenceTime >= threadRunTime) {
+        if (Clock.accurateForwardProgressingMillis() - startReferenceTime >= threadRunTime) {
           break;
         } else {
           timeCheckIterations = Math.max(10, timeCheckIterations / 2);

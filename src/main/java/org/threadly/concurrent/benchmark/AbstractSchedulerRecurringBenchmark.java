@@ -36,7 +36,7 @@ public abstract class AbstractSchedulerRecurringBenchmark extends AbstractSchedu
     @Override
     public void run() {
       if (run) {
-        long startTime = threadRunTime > 0 ? Clock.accurateTimeMillis() : -1;
+        long startTime = threadRunTime > 0 ? Clock.accurateForwardProgressingMillis() : -1;
         countArray.incrementAndGet(index);
         
         doThreadWork(startTime);
