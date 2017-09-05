@@ -15,7 +15,7 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
     }
   }
   
-  private final NoThreadScheduler scheduler = new NoThreadScheduler(false);
+  private final NoThreadScheduler scheduler = new NoThreadScheduler();
   private final AtomicInteger execCount = new AtomicInteger(0);
   private volatile boolean run = true;
   private volatile boolean tickDone = false;
@@ -50,14 +50,7 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
       @Override
       public void run() {
         while (run) {
-          int runCount;
-          try {
-            runCount = scheduler.tick();
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            // should not be possible
-            throw new RuntimeException(e);
-          }
+          int runCount = scheduler.tick();
           if (runCount > 0) {
             execCount.addAndGet(runCount);
           } else {

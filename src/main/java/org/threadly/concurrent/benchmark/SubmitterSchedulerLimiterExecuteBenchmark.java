@@ -3,7 +3,7 @@ package org.threadly.concurrent.benchmark;
 import org.threadly.concurrent.PriorityScheduledExecutor;
 import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.TaskPriority;
-import org.threadly.concurrent.limiter.SimpleSchedulerLimiter;
+import org.threadly.concurrent.limiter.SchedulerLimiter;
 
 public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {
@@ -25,7 +25,7 @@ public class SubmitterSchedulerLimiterExecuteBenchmark extends AbstractScheduler
     
     originalExecutor = new PriorityScheduledExecutor(poolSize, poolSize, 10_000, TaskPriority.High, 0);
     originalExecutor.prestartAllCoreThreads();
-    executor = new SimpleSchedulerLimiter(originalExecutor, Integer.MAX_VALUE);
+    executor = new SchedulerLimiter(originalExecutor, Integer.MAX_VALUE);
   }
   
   @Override

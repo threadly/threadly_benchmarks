@@ -48,12 +48,12 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     }
 
     Iterator<Runnable> it = runnables.iterator();
-    long startTime = Clock.accurateTimeMillis();
+    long startTime = Clock.accurateTime();
     while (it.hasNext()) {
-      initialSchedule(it.next(), startTime - Clock.accurateTimeMillis() + RUNNABLE_ADD_TIME);
+      initialSchedule(it.next(), startTime - Clock.accurateTime() + RUNNABLE_ADD_TIME);
     }
     
-    Thread.sleep((startTime - Clock.accurateTimeMillis()) + RUNNABLE_ADD_TIME);
+    Thread.sleep((startTime - Clock.accurateTime()) + RUNNABLE_ADD_TIME);
     
     Thread.sleep(RUN_TIME);
     
@@ -104,7 +104,7 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
       if (Clock.lastKnownTimeMillis() - startReferenceTime >= threadRunTime) {
         break;
       } else if (++i == timeCheckIterations) {
-        if (Clock.accurateTimeMillis() - startReferenceTime >= threadRunTime) {
+        if (Clock.accurateTime() - startReferenceTime >= threadRunTime) {
           break;
         } else {
           timeCheckIterations = Math.max(10, timeCheckIterations / 2);

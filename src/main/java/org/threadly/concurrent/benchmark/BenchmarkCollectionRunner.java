@@ -118,26 +118,10 @@ public class BenchmarkCollectionRunner {
     classGroup++;
     benchmarkGroup += 2;
     
-    String[][] singleThreadSchedulerArgs = new String[][] {{"1"}, {""}};
-    String[][] singleThreadSchedulerArgsNpOp = new String[][] {{"0"}, {"NoOp"}};
-    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
-                                SingleThreadSchedulerExecuteBenchmark.class, 
-                                singleThreadSchedulerArgs));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerExecuteBenchmark.class, 
-                                singleThreadSchedulerArgsNpOp));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerRecurringBenchmark.class, 
-                                singleThreadSchedulerArgs));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerRecurringBenchmark.class, 
-                                singleThreadSchedulerArgsNpOp));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerScheduleBenchmark.class, 
-                                singleThreadSchedulerArgs));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                SingleThreadSchedulerScheduleBenchmark.class, 
-                                singleThreadSchedulerArgsNpOp));
+    // increment for skipped SingleThreadScheduler benchmarks
+    classGroup++;
+    benchmarkGroup += 6;
+    
     // since NoThreadScheduler is the basis of SingleThreadScheduler they are in the same class group
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 NoThreadSchedulerBenchmark.class, new String[] {"4", "8", "16", "32", "64"}));

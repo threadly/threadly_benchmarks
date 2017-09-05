@@ -4,7 +4,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 
-import org.threadly.concurrent.AbstractSubmitterScheduler;
 import org.threadly.util.Clock;
 
 public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
@@ -60,11 +59,11 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
             // Considering this is only used in benchmarks, this should be an unlikely condition
             System.out.println("WARNING: Short delay task(s)!");
           }
-          final long startTime = Clock.accurateTimeMillis();
+          final long startTime = Clock.accurateTime();
           new Thread(new Runnable() {
             @Override
             public void run() {
-              while (Clock.accurateTimeMillis() - startTime < delayInMillis) {
+              while (Clock.accurateTime() - startTime < delayInMillis) {
                 Thread.yield();
               }
               task.run();
@@ -77,5 +76,10 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
     } else {
       executor.execute(task);
     }
+  }
+
+  @Override
+  public boolean isShutdown() {
+    return false;
   }
 }
