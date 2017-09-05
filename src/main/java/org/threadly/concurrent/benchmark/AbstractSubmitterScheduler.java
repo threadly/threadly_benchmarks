@@ -4,9 +4,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import org.threadly.concurrent.SubmitterSchedulerInterface;
+import org.threadly.concurrent.SimpleSchedulerInterface;
 
-public abstract class AbstractSubmitterScheduler implements SubmitterSchedulerInterface {
+public abstract class AbstractSubmitterScheduler implements SimpleSchedulerInterface {
   @Override
   public void execute(Runnable task) {
     doSchedule(task, 0);
