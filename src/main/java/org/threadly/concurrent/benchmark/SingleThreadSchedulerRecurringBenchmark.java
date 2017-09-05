@@ -31,6 +31,6 @@ public class SingleThreadSchedulerRecurringBenchmark extends AbstractSchedulerRe
 
   @Override
   protected void shutdownScheduler() {
-    EXECUTOR.shutdownNow();
+    EXECUTOR.shutdown();
   }
 }
