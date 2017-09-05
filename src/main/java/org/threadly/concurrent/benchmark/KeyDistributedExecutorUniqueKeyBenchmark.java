@@ -3,8 +3,8 @@ package org.threadly.concurrent.benchmark;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
-import org.threadly.concurrent.KeyDistributedScheduler;
 import org.threadly.concurrent.PriorityScheduler;
+import org.threadly.concurrent.TaskSchedulerDistributor;
 import org.threadly.util.Clock;
 
 /**
@@ -21,7 +21,7 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
   
   private final int submitterQty;
   private final PriorityScheduler scheduler;
-  private final KeyDistributedScheduler distributor;
+  private final TaskSchedulerDistributor distributor;
   private final AtomicLong execCount = new AtomicLong(0);
   private final AtomicReferenceArray<DistributorRunnable> lastRunnable;
   private volatile boolean run = true;
@@ -30,7 +30,7 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
     this.submitterQty = submitterQty;
     scheduler = new PriorityScheduler(submitterQty * 2, submitterQty * 2, 10_000);
     scheduler.prestartAllCoreThreads();
-    distributor = new KeyDistributedScheduler(scheduler);
+    distributor = new TaskSchedulerDistributor(scheduler);
     lastRunnable = new AtomicReferenceArray<DistributorRunnable>(submitterQty);
   }
   

@@ -1,7 +1,7 @@
 package org.threadly.concurrent.benchmark;
 
-import org.threadly.concurrent.KeyDistributedScheduler;
 import org.threadly.concurrent.PriorityScheduler;
+import org.threadly.concurrent.TaskSchedulerDistributor;
 
 /**
  * Does not need to create and destroy workers, queues remain small, and lock contention is 
@@ -16,12 +16,12 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
   private static final int POOL_SIZE = 4;
   private static final int QUEUE_SIZE = 1000;
   private static final PriorityScheduler EXECUTOR;
-  private static final KeyDistributedScheduler DISTRIBUTOR;
+  private static final TaskSchedulerDistributor DISTRIBUTOR;
   
   static {
     EXECUTOR = new PriorityScheduler(POOL_SIZE, POOL_SIZE, 10_000);
     EXECUTOR.prestartAllCoreThreads();
-    DISTRIBUTOR = new KeyDistributedScheduler(EXECUTOR);
+    DISTRIBUTOR = new TaskSchedulerDistributor(EXECUTOR);
   }
   
   private static volatile boolean run = true;

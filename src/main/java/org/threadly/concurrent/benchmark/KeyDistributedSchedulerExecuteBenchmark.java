@@ -1,9 +1,9 @@
 package org.threadly.concurrent.benchmark;
 
-import org.threadly.concurrent.KeyDistributedScheduler;
 import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.TaskPriority;
+import org.threadly.concurrent.TaskSchedulerDistributor;
 
 public class KeyDistributedSchedulerExecuteBenchmark extends AbstractSchedulerExecuteBenchmark {
   public static void main(String args[]) {
@@ -18,14 +18,14 @@ public class KeyDistributedSchedulerExecuteBenchmark extends AbstractSchedulerEx
   }
   
   protected final PriorityScheduler originalExecutor;
-  protected final KeyDistributedScheduler keyScheduler;
+  protected final TaskSchedulerDistributor keyScheduler;
   
   public KeyDistributedSchedulerExecuteBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
     originalExecutor = new PriorityScheduler(poolSize, poolSize, 10_000, TaskPriority.High, 0);
     originalExecutor.prestartAllCoreThreads();
-    keyScheduler = new KeyDistributedScheduler(originalExecutor);
+    keyScheduler = new TaskSchedulerDistributor(originalExecutor);
   }
 
   @Override
