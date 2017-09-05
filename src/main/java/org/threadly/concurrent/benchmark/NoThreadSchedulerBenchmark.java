@@ -71,7 +71,6 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
     // run the test, stopping after the time expires
     Thread.sleep(RUN_TIME);
     run = false;
-    scheduler.cancelTick();
 
     while (! tickDone) {
       Thread.sleep(100);
