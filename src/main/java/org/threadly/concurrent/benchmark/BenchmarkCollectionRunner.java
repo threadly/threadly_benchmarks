@@ -32,24 +32,24 @@ public class BenchmarkCollectionRunner {
   static {
     SCHEDULER = new PriorityScheduler(2);
     SCHEDULER.prestartAllThreads();
-    SCHEDULER.setPoolSize(10);
+    SCHEDULER.setPoolSize(16);
     
     ArrayList<BenchmarkCase> toRun = new ArrayList<>();
     
-    String[][] executeScheduleRecurringThreadCases = new String[][]{{"2 4", "2 10", "2 20", "2 50", 
-                                                                     "2 100", "2 150", "2 200", "2 250", 
+    String[][] executeScheduleRecurringThreadCases = new String[][]{{"2 4", "2 8", "2 16", "2 32", 
+                                                                     "2 64", "2 128", "2 200", "2 250", 
                                                                      "2 500", "2 750", "2 1000", 
                                                                      "2 1500", "2 2000", "2 2500"}, 
-                                                                    {"4", "10", "20", "50", 
-                                                                     "100", "150", "200", "250", 
+                                                                    {"4", "8", "16", "32", 
+                                                                     "64", "128", "200", "250", 
                                                                      "500", "750", "1000", 
                                                                      "1500", "2000", "2500"}};
-    String[][] executeScheduleRecurringNoOpThreadCases = new String[][]{{"0 4", "0 10", "0 20", "0 50", 
-                                                                         "0 100", "0 150", "0 200", "0 250", 
+    String[][] executeScheduleRecurringNoOpThreadCases = new String[][]{{"0 4", "0 8", "0 16", "0 32", 
+                                                                         "0 64", "0 128", "0 200", "0 250", 
                                                                          "0 500", "0 750", "0 1000", 
                                                                          "0 1500", "0 2000", "0 2500"}, 
-                                                                        {"NoOp4", "NoOp10", "NoOp20", "NoOp50", 
-                                                                         "NoOp100", "NoOp150", "NoOp200", "NoOp250", 
+                                                                        {"NoOp4", "NoOp8", "NoOp16", "NoOp32", 
+                                                                         "NoOp64", "NoOp128", "NoOp200", "NoOp250", 
                                                                          "NoOp500", "NoOp750", "NoOp1000", 
                                                                          "NoOp1500", "NoOp2000", "NoOp2500"}};
     
@@ -208,23 +208,31 @@ public class BenchmarkCollectionRunner {
                                                {"Execute", "Schedule"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorManySubmitterBenchmark.class, 
-                                new String[][]{{"false 10", "false 50", "false 100", "false 200"}, 
-                                               {"Execute10",  "Execute50",  "Execute100",  "Execute200"}}));
+                                new String[][]{{"false 4", "false 8", "false 16", "false 32", 
+                                                "false 64", "false 200"}, 
+                                               {"Execute4", "Execute8", "Execute16", "Execute32", 
+                                                "Execute64", "Execute200"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorManySubmitterBenchmark.class, 
-                                new String[][]{{"true 10",  "true 50",  "true 100",  "true 200"}, 
-                                               {"Schedule10", "Schedule50", "Schedule100", "Schedule200"}}));
+                                new String[][]{{"true 4", "true 8", "true 16", "true 32", 
+                                                "true 64", "true 200"}, 
+                                               {"Schedule4", "Schedule8", "Schedule16", "Schedule32", 
+                                                "Schedule64", "Schedule200"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorUniqueKeyBenchmark.class, 
-                                new String[][]{{"false 2", "false 4", "false 8", "false 16"}, 
-                                               {"Execute2",  "Execute4",  "Execute8", "Execute16"}}));
+                                new String[][]{{"false 2", "false 4", "false 8", "false 16", 
+                                                "false 32", "false 64"}, 
+                                               {"Execute2",  "Execute4",  "Execute8", "Execute16", 
+                                                "Execute32", "Execute64"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorUniqueKeyBenchmark.class, 
-                                new String[][]{{"true 2",  "true 4",  "true 8",  "true 16"}, 
-                                               {"Schedule2", "Schedule4", "Schedule8", "Schedule16"}}));
+                                new String[][]{{"true 2",  "true 4",  "true 8", "true 16", 
+                                                "true 32", "true 64"}, 
+                                               {"Schedule2", "Schedule4", "Schedule8", "Schedule16", 
+                                                "Schedule32", "Schedule64"}}));
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark.class, 
-                                new String[]{"2", "4", "8", "10", "16", "20"}));
+                                new String[]{"2", "4", "8", "16", "32", "64"}));
     
     // Statistic trackers
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 

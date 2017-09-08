@@ -96,7 +96,7 @@ public class DatabaseGraphPngExport {
     protected static final Pattern THREAD_COUNT_PATTERN;
     
     static {
-      X_AXIS_VALUES = Arrays.asList(new Integer[] { 4, 10, 20, 50, 100, 150, 200, 250, 500, 750, 
+      X_AXIS_VALUES = Arrays.asList(new Integer[] { 4, 8, 16, 32, 64, 128, 200, 250, 500, 750, 
                                                     1000, 1500, 2000, 2500});
       THREAD_COUNT_PATTERN = Pattern.compile("[0-9]+$");
     }
