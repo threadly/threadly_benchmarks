@@ -1,10 +1,8 @@
 package org.threadly.concurrent.benchmark;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.threadly.concurrent.DoNothingRunnable;
 import org.threadly.concurrent.NoThreadScheduler;
-import org.threadly.test.concurrent.TestCondition;
 
 public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
   public static void main(String args[]) {
@@ -63,13 +61,10 @@ public class NoThreadSchedulerBenchmark extends AbstractBenchmark {
     Thread.sleep(RUN_TIME);
     run = false;
     scheduler.cancelTick();
-    
-    new TestCondition() {
-      @Override
-      public boolean get() {
-        return tickDone;
-      }
-    }.blockTillTrue(RUN_TIME * 15, 1000);
+
+    while (! tickDone) {
+      Thread.sleep(100);
+    }
     
     System.out.println(this.getClass().getSimpleName() + ": " + execCount.get());
   }

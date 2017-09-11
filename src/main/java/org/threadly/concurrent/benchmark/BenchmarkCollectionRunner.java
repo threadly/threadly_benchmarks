@@ -21,11 +21,11 @@ import org.threadly.util.StringUtils;
 
 public class BenchmarkCollectionRunner {
   protected static final int RUN_COUNT = 5;
-  protected static final boolean INCLUDE_JAVA_BASELINE = true;
+  protected static final boolean INCLUDE_JAVA_BASELINE = false;
   protected static final boolean EXIT_ON_BENCHMARK_FAILURE = true;
   protected static final boolean DISCARD_FIRST_RUN = false;
   protected static final String SHELL = "bash";
-  protected static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx4096m -Xms2048m -Xss256k ";
+  protected static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx4g -Xms2048m -Xss256k ";
   protected static final PriorityScheduler SCHEDULER;
   protected static final List<BenchmarkCase> BENCHMARKS_TO_RUN;
   
@@ -111,7 +111,7 @@ public class BenchmarkCollectionRunner {
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
                                 UnfairExecutorExecuteBenchmark.class, 
                                 executeScheduleRecurringNoOpThreadCases));
-    String[][] singleThreadSchedulerArgs = new String[][] {{"2"}, {""}};
+    String[][] singleThreadSchedulerArgs = new String[][] {{"1"}, {""}};
     String[][] singleThreadSchedulerArgsNpOp = new String[][] {{"0"}, {"NoOp"}};
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
                                 SingleThreadSchedulerExecuteBenchmark.class, 
@@ -133,7 +133,7 @@ public class BenchmarkCollectionRunner {
                                 singleThreadSchedulerArgsNpOp));
     // since NoThreadScheduler is the basis of SingleThreadScheduler they are in the same class group
     toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                NoThreadSchedulerBenchmark.class, new String[]{"10", "50"}));
+                                NoThreadSchedulerBenchmark.class, new String[] {"4", "8", "16", "32", "64"}));
     
     // scheduler wrappers
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
