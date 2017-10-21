@@ -16,7 +16,8 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
   protected static final boolean RUN_PROFILER = false;
   
   protected final int threadRunTime;
-  protected final AtomicIntegerArray countArray = new AtomicIntegerArray(RUNNABLE_COUNT / RUNNABLE_PER_COUNTER);
+  protected final AtomicIntegerArray countArray = 
+      new AtomicIntegerArray(RUNNABLE_COUNT / RUNNABLE_PER_COUNTER);
   protected volatile boolean run = true;
   
   protected AbstractSchedulerBenchmark(int threadRunTime) {
@@ -38,11 +39,7 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
     
     List<Runnable> runnables = new ArrayList<Runnable>(RUNNABLE_COUNT);
     for (int i = 0; i < RUNNABLE_COUNT; i++) {
-      int index = i;
-      while (index >= countArray.length()) {
-        index -= countArray.length();
-      }
-      runnables.add(makeRunnable(index));
+      runnables.add(makeRunnable(i % countArray.length()));
     }
     Profiler p;
     if (RUN_PROFILER) {
@@ -50,13 +47,13 @@ public abstract class AbstractSchedulerBenchmark extends AbstractBenchmark {
       p.start();
     }
 
-    long startTime = Clock.accurateForwardProgressingMillis();
     Iterator<Runnable> it = runnables.iterator();
+    long startTime = Clock.accurateForwardProgressingMillis();
     while (it.hasNext()) {
       initialSchedule(it.next(), startTime - Clock.accurateForwardProgressingMillis() + RUNNABLE_ADD_TIME);
     }
     
-    Thread.sleep(startTime - Clock.accurateForwardProgressingMillis() + RUNNABLE_ADD_TIME);
+    Thread.sleep((startTime - Clock.accurateForwardProgressingMillis()) + RUNNABLE_ADD_TIME);
     
     Thread.sleep(RUN_TIME);
     

@@ -400,11 +400,11 @@ public class BenchmarkCollectionRunner {
       }
     }
     
-    double total = 0;
+    long total = 0;
     for (long i : runResults) {
       total += i;
     }
-    return new BenchmarkResult((long)(total / runResults.size()));
+    return new BenchmarkResult(total / runResults.size());
   }
   
   private static BenchmarkResult runBenchmark(String classpath, 
