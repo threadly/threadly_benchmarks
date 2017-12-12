@@ -18,17 +18,20 @@ public class KeyedLimiterExecuteUnfairExecutorBenchmark extends AbstractSchedule
 
   protected final UnfairExecutor originalExecutor;
   protected final KeyedExecutorLimiter keyLimiter;
+  protected final SubmitterScheduler scheduler;
   
   public KeyedLimiterExecuteUnfairExecutorBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
     originalExecutor = new UnfairExecutor(poolSize);
     keyLimiter = new KeyedExecutorLimiter(originalExecutor, Integer.MAX_VALUE);
+    scheduler = new ExecutorSchedulerAdapter((task) -> keyLimiter.getSubmitterExecutorForKey(new Object())
+                                                                 .execute(task));
   }
 
   @Override
   protected SubmitterScheduler getScheduler() {
-    return new ExecutorSchedulerAdapter(keyLimiter.getSubmitterExecutorForKey(new Object()));
+    return scheduler;
   }
 
   @Override

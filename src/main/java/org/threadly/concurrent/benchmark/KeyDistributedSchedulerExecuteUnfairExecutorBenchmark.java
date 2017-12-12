@@ -18,17 +18,20 @@ public class KeyDistributedSchedulerExecuteUnfairExecutorBenchmark extends Abstr
   
   protected final UnfairExecutor originalExecutor;
   protected final KeyDistributedExecutor keyScheduler;
+  protected final SubmitterScheduler scheduler;
   
   public KeyDistributedSchedulerExecuteUnfairExecutorBenchmark(int threadRunTime, int poolSize) {
     super(threadRunTime);
     
     originalExecutor = new UnfairExecutor(poolSize);
     keyScheduler = new KeyDistributedExecutor(originalExecutor);
+    scheduler = new ExecutorSchedulerAdapter((task) -> keyScheduler.getExecutorForKey(new Object())
+                                                                   .execute(task));
   }
 
   @Override
   protected SubmitterScheduler getScheduler() {
-    return new ExecutorSchedulerAdapter(keyScheduler.getExecutorForKey(new Object()));
+    return scheduler;
   }
 
   @Override
