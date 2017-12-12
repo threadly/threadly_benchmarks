@@ -36,22 +36,32 @@ public class BenchmarkCollectionRunner {
     
     ArrayList<BenchmarkCase> toRun = new ArrayList<>();
     
-    String[][] executeScheduleRecurringThreadCases = new String[][]{{"2 4", "2 8", "2 16", "2 32", 
-                                                                     "2 64", "2 128", "2 200", "2 250", 
-                                                                     "2 500", "2 750", "2 1000", 
+    String[][] executeScheduleRecurringThreadCases = new String[][]{{"2 4", "2 8", "2 10", "2 16", 
+                                                                     "2 20", "2 32", "2 64", 
+                                                                     "2 100", "2 128", "2 150", 
+                                                                     "2 200", "2 250", "2 400", 
+                                                                     "2 500", "2 800", "2 1000", 
                                                                      "2 1500", "2 2000", "2 2500"}, 
-                                                                    {"4", "8", "16", "32", 
-                                                                     "64", "128", "200", "250", 
-                                                                     "500", "750", "1000", 
+                                                                    {"4", "8", "10", "16", "20", 
+                                                                     "32", "64", "100", "128", 
+                                                                     "150", "200", "250", "400", 
+                                                                     "500", "800", "1000", 
                                                                      "1500", "2000", "2500"}};
-    String[][] executeScheduleRecurringNoOpThreadCases = new String[][]{{"0 4", "0 8", "0 16", "0 32", 
-                                                                         "0 64", "0 128", "0 200", "0 250", 
-                                                                         "0 500", "0 750", "0 1000", 
+    String[][] executeScheduleRecurringNoOpThreadCases = new String[][]{{"0 4", "0 8", "0 10", "0 16", 
+                                                                         "0 20", "0 32", "0 64", 
+                                                                         "0 100", "0 128", "0 150", 
+                                                                         "0 200", "0 250", "0 400", 
+                                                                         "0 500", "0 800", "0 1000", 
                                                                          "0 1500", "0 2000", "0 2500"}, 
-                                                                        {"NoOp4", "NoOp8", "NoOp16", "NoOp32", 
-                                                                         "NoOp64", "NoOp128", "NoOp200", "NoOp250", 
-                                                                         "NoOp500", "NoOp750", "NoOp1000", 
-                                                                         "NoOp1500", "NoOp2000", "NoOp2500"}};
+                                                                        {"NoOp4", "NoOp8", "NoOp10", 
+                                                                         "NoOp16", "NoOp20", 
+                                                                         "NoOp32", "NoOp64", 
+                                                                         "NoOp100", "NoOp128", 
+                                                                         "NoOp150", "NoOp200", 
+                                                                         "NoOp250", "NoOp400", 
+                                                                         "NoOp500", "NoOp800", 
+                                                                         "NoOp1000", "NoOp1500", 
+                                                                         "NoOp2000", "NoOp2500"}};
     
     int benchmarkGroup = 0; // incremented for each one
     int classGroup = 0; // incremented at each class change
