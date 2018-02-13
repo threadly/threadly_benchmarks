@@ -18,7 +18,8 @@ public abstract class AbstractBenchmark {
     ExceptionUtils.setDefaultExceptionHandler(new ExceptionHandlerInterface() {
       @Override
       public void handleException(Throwable thrown) {
-        if (thrown instanceof RejectedExecutionException) {
+        if (thrown instanceof RejectedExecutionException || 
+            (thrown instanceof IllegalStateException && thrown.getMessage().contains("shutdown"))) {
           // ignore
         } else {
           thrown.printStackTrace();
