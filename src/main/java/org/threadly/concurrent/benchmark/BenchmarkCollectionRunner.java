@@ -64,35 +64,9 @@ public class BenchmarkCollectionRunner {
     int benchmarkGroup = 0; // incremented for each one
     int classGroup = 0; // incremented at each class change
     
-    // java.util baseline
-    toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 
-                                JavaUtilConcurrentExecutorExecuteBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                JavaUtilConcurrentExecutorExecuteBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, // we count all java.util.concurrent in the same class group
-                                JavaUtilConcurrentSchedulerExecuteBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup,
-                                JavaUtilConcurrentSchedulerExecuteBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                JavaUtilConcurrentSchedulerRecurringBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                JavaUtilConcurrentSchedulerRecurringBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                JavaUtilConcurrentSchedulerScheduleBenchmark.class, 
-                                executeScheduleRecurringThreadCases));
-    toRun.add(new BenchmarkCase(++benchmarkGroup, classGroup, 
-                                JavaUtilConcurrentSchedulerScheduleBenchmark.class, 
-                                executeScheduleRecurringNoOpThreadCases));
-    if (! INCLUDE_JAVA_BASELINE) {
-      // we must clear so that the benchmarkGroup and classGroup are still what we expect
-      toRun.clear();
-    }
+    // java.util baseline not possible with this old of threadly
+    classGroup++;
+    benchmarkGroup += 8;
     
     // top level schedulers
     toRun.add(new BenchmarkCase(++benchmarkGroup, ++classGroup, 

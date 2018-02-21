@@ -53,7 +53,7 @@ public class KeyDistributedExecutorSimpleBenchmark extends AbstractBenchmark {
     Thread.sleep(RUN_TIME);
     
     run = false;
-    EXECUTOR.shutdownNow();
+    EXECUTOR.shutdown();
     
     /*System.out.println((thread1Count + thread2Count) + " = " + 
                          thread1Count + " + " + thread2Count);*/

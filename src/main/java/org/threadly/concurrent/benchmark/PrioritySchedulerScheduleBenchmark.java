@@ -33,6 +33,6 @@ public class PrioritySchedulerScheduleBenchmark extends AbstractSchedulerSchedul
 
   @Override
   protected void shutdownScheduler() {
-    scheduler.shutdownNow();
+    scheduler.shutdown();
   }
 }

@@ -35,6 +35,6 @@ public class KeyDistributedSchedulerExecuteBenchmark extends AbstractSchedulerEx
 
   @Override
   protected void shutdownScheduler() {
-    originalExecutor.shutdownNow();
+    originalExecutor.shutdown();
   }
 }

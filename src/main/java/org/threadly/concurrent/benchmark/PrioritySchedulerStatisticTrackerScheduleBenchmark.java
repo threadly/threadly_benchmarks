@@ -32,6 +32,6 @@ public class PrioritySchedulerStatisticTrackerScheduleBenchmark extends Abstract
 
   @Override
   protected void shutdownScheduler() {
-    scheduler.shutdownNow();
+    scheduler.shutdown();
   }
 }

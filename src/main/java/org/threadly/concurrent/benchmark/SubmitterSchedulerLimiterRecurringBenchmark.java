@@ -35,6 +35,6 @@ public class SubmitterSchedulerLimiterRecurringBenchmark extends AbstractSchedul
 
   @Override
   protected void shutdownScheduler() {
-    originalExecutor.shutdownNow();
+    originalExecutor.shutdown();
   }
 }

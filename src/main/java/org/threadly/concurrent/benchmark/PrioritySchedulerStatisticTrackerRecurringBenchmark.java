@@ -32,6 +32,6 @@ public class PrioritySchedulerStatisticTrackerRecurringBenchmark extends Abstrac
 
   @Override
   protected void shutdownScheduler() {
-    scheduler.shutdownNow();
+    scheduler.shutdown();
   }
 }
