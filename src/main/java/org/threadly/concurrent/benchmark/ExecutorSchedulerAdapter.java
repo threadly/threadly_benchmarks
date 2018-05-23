@@ -56,7 +56,11 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
               
               Runnable task;
               while ((task = taskQueue.poll()) != null) {
-                ExceptionUtils.runRunnable(task);
+                try {
+                  task.run();
+                } catch (Throwable t) {
+                  ExceptionUtils.handleException(t);
+                }
               }
             }
           }).start();
@@ -74,8 +78,12 @@ public class ExecutorSchedulerAdapter extends AbstractSubmitterScheduler {
               while (Clock.accurateForwardProgressingMillis() - startTime < delayInMillis) {
                 Thread.yield();
               }
-              
-              ExceptionUtils.runRunnable(task);
+
+              try {
+                task.run();
+              } catch (Throwable t) {
+                ExceptionUtils.handleException(t);
+              }
             }
           }).start();
         }
