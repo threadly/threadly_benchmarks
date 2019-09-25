@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jdbi.v3.core.Jdbi;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.CategoryChart;
@@ -24,7 +25,6 @@ import org.knowm.xchart.style.Styler.ChartTheme;
 import org.knowm.xchart.style.Styler.LegendPosition;
 import org.knowm.xchart.style.Styler.TextAlignment;
 import org.knowm.xchart.style.markers.SeriesMarkers;
-import org.skife.jdbi.v2.DBI;
 import org.threadly.concurrent.benchmark.dao.BenchmarkDao;
 import org.threadly.concurrent.benchmark.dao.RunRecord;
 import org.threadly.util.StringUtils;
@@ -41,8 +41,8 @@ public class DatabaseGraphPngExport {
       System.exit(-1);
     }
     Class.forName("org.postgresql.Driver");
-    DBI dbi = new DBI("jdbc:postgresql://" + args[0] + '/' + args[3],
-                      args[1], args[2]);
+    Jdbi dbi = Jdbi.create("jdbc:postgresql://" + args[0] + '/' + args[3],
+                           args[1], args[2]);
     BenchmarkDao dao = dbi.onDemand(BenchmarkDao.class);
     
     File outputFolder = new File(args[4]);

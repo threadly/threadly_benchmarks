@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.TransactionCallback;
-import org.skife.jdbi.v2.TransactionStatus;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.threadly.concurrent.PriorityScheduler;
 import org.threadly.concurrent.benchmark.dao.BenchmarkDao;
 import org.threadly.concurrent.future.ListenableFuture;
@@ -346,11 +344,12 @@ public class BenchmarkCollectionRunner {
     
     System.out.println("Testing '" + branchName + "' hash: '" + hash + "'");
     
-    DBI dbi = null;
+    Jdbi dbi = null;
     if (args.length == 6) {
       Class.forName("org.postgresql.Driver");
-      dbi = new DBI("jdbc:postgresql://" + args[2] + '/' + args[5],
-                    args[3], args[4]);
+      dbi = Jdbi.create("jdbc:postgresql://" + args[2] + '/' + args[5],
+                        args[3], args[4]);
+      dbi.installPlugin(new SqlObjectPlugin());
     }
     for (final BenchmarkCase bc : BENCHMARKS_TO_RUN) {
       final BenchmarkResult[] results = new BenchmarkResult[bc.executionArgs[0].length];
@@ -371,25 +370,20 @@ public class BenchmarkCollectionRunner {
         }
       }
       if (dbi != null) {
-        dbi.inTransaction(new TransactionCallback<Void>() {
-          @Override
-          public Void inTransaction(Handle h, TransactionStatus arg1) throws Exception {
-            BenchmarkDao benchmarkDbi = h.attach(BenchmarkDao.class);
-            
-            int nextBenchmarkGroupRunId = 1 + benchmarkDbi.getLastBenchmarkGroupRunId(bc.benchmarkGroup);
-            
-            for (int i = 0; i < results.length; i++) {
-              BenchmarkResult br = results[i];
-              if (StringUtils.isNullOrEmpty(br.errorOutput)) {
-                String ident = bc.benchmarkClass.getSimpleName().replaceAll("Benchmark", "") + 
-                                 bc.executionArgs[1][i];
-                benchmarkDbi.addRecord(bc.benchmarkGroup, bc.classGroup, nextBenchmarkGroupRunId, 
-                                       hash, branchName, ident, results[i].resultValue, 
-                                       AbstractBenchmark.RUN_TIME);
-              }
+        dbi.useTransaction((h) -> {
+          BenchmarkDao benchmarkDbi = h.attach(BenchmarkDao.class);
+          
+          int nextBenchmarkGroupRunId = 1 + benchmarkDbi.getLastBenchmarkGroupRunId(bc.benchmarkGroup);
+          
+          for (int i = 0; i < results.length; i++) {
+            BenchmarkResult br = results[i];
+            if (StringUtils.isNullOrEmpty(br.errorOutput)) {
+              String ident = bc.benchmarkClass.getSimpleName().replaceAll("Benchmark", "") + 
+                               bc.executionArgs[1][i];
+              benchmarkDbi.addRecord(bc.benchmarkGroup, bc.classGroup, nextBenchmarkGroupRunId, 
+                                     hash, branchName, ident, results[i].resultValue, 
+                                     AbstractBenchmark.RUN_TIME);
             }
-            
-            return null;
           }
         });
       }

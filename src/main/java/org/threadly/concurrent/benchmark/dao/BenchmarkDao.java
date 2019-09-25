@@ -2,12 +2,12 @@ package org.threadly.concurrent.benchmark.dao;
 
 import java.util.List;
 
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
-@RegisterMapper(RunRecordMapper.class)
+@RegisterRowMapper(RunRecordMapper.class)
 public interface BenchmarkDao {
   @SqlUpdate("INSERT INTO run_results " + 
                "(benchmark_group_id, class_group_id, benchmark_group_run_id, " + 
