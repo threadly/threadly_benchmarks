@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.CategoryChart;
@@ -43,6 +44,7 @@ public class DatabaseGraphPngExport {
     Class.forName("org.postgresql.Driver");
     Jdbi dbi = Jdbi.create("jdbc:postgresql://" + args[0] + '/' + args[3],
                            args[1], args[2]);
+    dbi.installPlugin(new SqlObjectPlugin());
     BenchmarkDao dao = dbi.onDemand(BenchmarkDao.class);
     
     File outputFolder = new File(args[4]);
