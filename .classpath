@@ -12,5 +12,7 @@
 	<classpathentry kind="lib" path="build/dependencies/xchart-3.5.2.jar"/>
 	<classpathentry kind="lib" path="build/dependencies/jdbi3-core-3.10.1.jar"/>
 	<classpathentry kind="lib" path="build/dependencies/jdbi3-sqlobject-3.10.1.jar"/>
+	<classpathentry kind="lib" path="build/dependencies/jmh-core-1.21.jar"/>
+	<classpathentry kind="lib" path="build/dependencies/jmh-generator-annprocess-1.21.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
