@@ -50,6 +50,4 @@ public interface BenchmarkDao {
   
   @SqlQuery("SELECT name FROM benchmark_group_identifier WHERE id = :bGroupId")
   public String getBenchmarkGroupIdentifier(@Bind("bGroupId") int bGroupId);
-
-  public void close();
 }

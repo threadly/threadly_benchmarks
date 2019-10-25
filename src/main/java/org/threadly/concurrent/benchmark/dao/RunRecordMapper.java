@@ -12,6 +12,6 @@ public class RunRecordMapper implements RowMapper<RunRecord> {
     return new RunRecord(r.getInt("benchmark_group_id"), r.getInt("class_group_id"), 
                          r.getInt("benchmark_group_run_id"), r.getTimestamp("run_timestamp").getTime(), 
                          r.getString("commit_hash"), r.getString("branch_name"), 
-                         r.getString("benchmark_name"), r.getInt("total_executions"), r.getInt("duration"));
+                         r.getString("benchmark_name"), r.getLong("total_executions"), r.getInt("duration"));
   }
 }

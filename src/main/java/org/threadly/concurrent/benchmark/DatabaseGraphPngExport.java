@@ -141,7 +141,7 @@ public class DatabaseGraphPngExport {
               continue;
             }
             if (bg % 2 == m) {
-              Integer[] executions = new Integer[X_AXIS_VALUES.size()];
+              Long[] executions = new Long[X_AXIS_VALUES.size()];
               int[] count = new int[executions.length];
               for (RunRecord rr : dao.getLastResultsForBenchmarkGroupId(bg, cg)) {
                 Matcher match = THREAD_COUNT_PATTERN.matcher(rr.getBenchmarkName());
@@ -342,7 +342,7 @@ public class DatabaseGraphPngExport {
       
       private static class SeriesData {
         public final String name;
-        public final Integer[] executions = new Integer[X_AXIS_VALUES.size()];
+        public final Long[] executions = new Long[X_AXIS_VALUES.size()];
         public final int[] count = new int[executions.length];
         private boolean dataComplete = false;
         
@@ -429,7 +429,7 @@ public class DatabaseGraphPngExport {
           for (String name : benchmarkNames) {
             List<RunRecord> individualResults = new ArrayList<RunRecord>(results.size() / 8);
             List<String> releases = new ArrayList<String>(results.size() / 8);
-            List<Integer> executions = new ArrayList<Integer>(results.size() / 8);
+            List<Long> executions = new ArrayList<Long>(results.size() / 8);
             for (RunRecord rr : results) {
               if (rr.getBenchmarkName().equals(name) && 
                   rr.getBranchName().startsWith(branchPrefix)) {

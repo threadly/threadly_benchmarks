@@ -1,11 +1,9 @@
 package org.threadly.concurrent.benchmark.jmh;
 
-import org.openjdk.jmh.Main;
-
 public class MicroBenchmarkRunner {
   public static final int FORKS = 2;
   public static final int WARMUP_ITERATIONS = 5;
-  public static final int WARMUP_SECONDS = 10;
+  public static final int WARMUP_SECONDS = 2;
   public static final int RUN_ITERATIONS = 5;
   public static final int RUN_SECONDS = 10;
   
@@ -15,6 +13,6 @@ public class MicroBenchmarkRunner {
       System.exit(1);
     }
     
-    Main.main(args);
+    org.openjdk.jmh.Main.main(args);
   }
 }

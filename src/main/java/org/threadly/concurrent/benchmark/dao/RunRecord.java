@@ -8,12 +8,12 @@ public class RunRecord {
   private final String commit_hash;
   private final String branch_name;
   private final String benchmark_name;
-  private final int total_executions;
+  private final long total_executions;
   private final int duration;
   
   public RunRecord(int benchmark_group_id, int class_group_id, int benchmark_group_run_id, 
                    long run_timestamp, String commit_hash, String branch_name, 
-                   String benchmark_name, int total_executions, int duration) {
+                   String benchmark_name, long total_executions, int duration) {
     this.benchmark_group_id = benchmark_group_id;
     this.class_group_id = class_group_id;
     this.benchmark_group_run_id = benchmark_group_run_id;
@@ -46,7 +46,7 @@ public class RunRecord {
   public String getBenchmarkName() {
     return benchmark_name;
   }
-  public int getTotalExecutions() {
+  public long getTotalExecutions() {
     return total_executions;
   }
   public int getDuration() {
