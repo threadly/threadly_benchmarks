@@ -30,11 +30,18 @@ public class PrioritySchedulerMicro extends AbstractPriorityScheduler {
       new AccurateBenchmarkTaskWrapper(Clock.lastKnownForwardProgressingMillis());
   private static final TaskWrapper ACCURATE_UNREADY_TASK = 
       new AccurateBenchmarkTaskWrapper(Clock.lastKnownTimeMillis());
+  private static final TaskWrapper GUESS_READY_RECURRING_TASK = 
+      new GuessRecurringBenchmarkTaskWrapper(Clock.lastKnownForwardProgressingMillis(), 0);
   private static final PriorityScheduler SCHEDULER = new PriorityScheduler(1);
   
   @Benchmark
   public void readyTaskGetScheduleDelay() {
     ACCURATE_READY_TASK.getScheduleDelay();
+  }
+  
+  @Benchmark
+  public void readyRecurringTaskGetScheduleDelay() {
+    GUESS_READY_RECURRING_TASK.getScheduleDelay();
   }
   
   // can't be grouped because this will update Clock, causing inconsistent volatile read performance
@@ -62,6 +69,12 @@ public class PrioritySchedulerMicro extends AbstractPriorityScheduler {
   protected static class GuessBenchmarkTaskWrapper extends GuessOneTimeTaskWrapper {
     public GuessBenchmarkTaskWrapper(long runTime) {
       super(DoNothingRunnable.instance(), null, runTime);
+    }
+  }
+  
+  protected static class GuessRecurringBenchmarkTaskWrapper extends GuessRecurringRateTaskWrapper {
+    public GuessRecurringBenchmarkTaskWrapper(long runTime, long period) {
+      super(DoNothingRunnable.instance(), null, runTime, period);
     }
   }
   
