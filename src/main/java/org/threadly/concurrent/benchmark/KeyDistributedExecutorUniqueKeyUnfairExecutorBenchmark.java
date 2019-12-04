@@ -1,9 +1,13 @@
 package org.threadly.concurrent.benchmark;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.threadly.concurrent.UnfairExecutor;
+import org.threadly.concurrent.future.FutureUtils;
+import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.concurrent.wrapper.KeyDistributedExecutor;
 import org.threadly.util.Clock;
 
@@ -54,14 +58,28 @@ public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends Abst
           }
           
           DistributorRunnable dr = new DistributorRunnable();
+          ListenableFuture<?> fcFuture1 = FutureUtils.immediateResultFuture(null);
+          ListenableFuture<?> fcFuture2 = fcFuture1;
           while (run) {
-            distributor.execute(new Object(), dr);
-            
-            //spin(100);
+            for (int i = 0; run && i < 1000; i++) {
+              distributor.execute(UniqueObject.INSTANCE, dr);
+            }
+
+            if (run) {
+              try {
+                fcFuture1.get();  // block till done so we don't submit too much
+              } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+              } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+              }
+              fcFuture1 = fcFuture2;
+              fcFuture2 = distributor.submit(UniqueObject.INSTANCE, dr);
+            }
           }
 
           dr = new DistributorRunnable();
-          distributor.execute(new Object(), dr);
+          distributor.execute(UniqueObject.INSTANCE, dr);
           
           lastRunnable.set(index, dr);
         }
@@ -102,6 +120,20 @@ public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends Abst
       runFinshed = true;
       
       //spin(10);
+    }
+  }
+  
+  private static class UniqueObject {
+    public static final UniqueObject INSTANCE = new UniqueObject();
+    
+    @Override
+    public int hashCode() {
+      return ThreadLocalRandom.current().nextInt();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+      return false;
     }
   }
 }

@@ -1,9 +1,12 @@
 package org.threadly.concurrent.benchmark;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
-
 import org.threadly.concurrent.PriorityScheduler;
+import org.threadly.concurrent.future.FutureUtils;
+import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.concurrent.wrapper.KeyDistributedScheduler;
 import org.threadly.util.Clock;
 
@@ -51,21 +54,39 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
         @Override
         public void run() {
           DistributorRunnable dr = new DistributorRunnable();
+          ListenableFuture<?> fcFuture1 = FutureUtils.immediateResultFuture(null);
+          ListenableFuture<?> fcFuture2 = FutureUtils.immediateResultFuture(null);
           while (run) {
-            if (schedule) {
-              distributor.schedule(new Object(), dr, SCHEDULE_DELAY);
-            } else {
-              distributor.execute(new Object(), dr);
+            for (int i = 0; run && i < 1000; i++) {
+              if (schedule) {
+                distributor.schedule(UniqueObject.INSTANCE, dr, SCHEDULE_DELAY);
+              } else {
+                distributor.execute(UniqueObject.INSTANCE, dr);
+              }
             }
-            
-            //spin(100);
+
+            if (run) {
+              try {
+                fcFuture1.get();  // block till done
+              } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+              } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+              }
+              fcFuture1 = fcFuture2;
+              if (schedule) {
+                fcFuture2 = distributor.submitScheduled(UniqueObject.INSTANCE, dr, SCHEDULE_DELAY);
+              } else {
+                fcFuture2 = distributor.submit(UniqueObject.INSTANCE, dr);
+              }
+            }
           }
 
           dr = new DistributorRunnable();
           if (schedule) {
-            distributor.schedule(new Object(), dr, SCHEDULE_DELAY);
+            distributor.schedule(UniqueObject.INSTANCE, dr, SCHEDULE_DELAY);
           } else {
-            distributor.execute(new Object(), dr);
+            distributor.execute(UniqueObject.INSTANCE, dr);
           }
           
           lastRunnable.set(index, dr);
@@ -107,6 +128,20 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
       runFinshed = true;
       
       //spin(10);
+    }
+  }
+  
+  private static class UniqueObject {
+    public static final UniqueObject INSTANCE = new UniqueObject();
+    
+    @Override
+    public int hashCode() {
+      return ThreadLocalRandom.current().nextInt();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+      return false;
     }
   }
 }
