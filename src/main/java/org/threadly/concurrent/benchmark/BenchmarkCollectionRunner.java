@@ -23,7 +23,7 @@ public class BenchmarkCollectionRunner {
   protected static final boolean EXIT_ON_BENCHMARK_FAILURE = true;
   protected static final boolean DISCARD_FIRST_RUN = false;
   protected static final String SHELL = "bash";
-  protected static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx4g -Xms2048m -Xss256k ";
+  protected static final String JAVA_EXECUTE_CMD = "/usr/bin/java -Xmx4g -Xms2048m -Xss256k -XX:+HeapDumpOnOutOfMemoryError ";
   protected static final PriorityScheduler SCHEDULER;
   protected static final List<BenchmarkCase> BENCHMARKS_TO_RUN;
   
