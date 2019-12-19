@@ -2,6 +2,8 @@ package org.threadly.concurrent.benchmark;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
@@ -16,8 +18,11 @@ import org.threadly.util.Clock;
  * construction and GC as each worker is constructed and then tossed away. 
  */
 public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends AbstractBenchmark {
+  private static final boolean COUNT_AT_STOP = true;
+  
   public static void main(String[] args) throws InterruptedException {
     new KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark(Integer.parseInt(args[0])).run();
+    System.exit(0);
   }
   
   private final int submitterQty;
@@ -61,20 +66,23 @@ public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends Abst
           ListenableFuture<?> fcFuture1 = FutureUtils.immediateResultFuture(null);
           ListenableFuture<?> fcFuture2 = fcFuture1;
           while (run) {
-            for (int i = 0; run && i < 1000; i++) {
+            for (int i = 0; i < 1000 && run; i++) {
               distributor.execute(UniqueObject.INSTANCE, dr);
             }
 
-            if (run) {
+            while (run) {
               try {
-                fcFuture1.get();  // block till done so we don't submit too much
-              } catch (InterruptedException e) {
+                fcFuture1.get(200, TimeUnit.MILLISECONDS);  // block till done so we don't submit too much
+                fcFuture1 = fcFuture2;
+                if (run) {
+                  fcFuture2 = distributor.submit(UniqueObject.INSTANCE, dr);
+                }
+                break;
+              } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
-              } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+              } catch (TimeoutException e) {
+                // retry if still running
               }
-              fcFuture1 = fcFuture2;
-              fcFuture2 = distributor.submit(UniqueObject.INSTANCE, dr);
             }
           }
 
@@ -89,6 +97,12 @@ public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends Abst
     Thread.sleep(RUN_TIME);
 
     run = false;
+    long countAtStop = execCount.get();
+    if (COUNT_AT_STOP) {
+      System.out.println(KeyDistributedExecutorUniqueKeyBenchmark.class.getSimpleName() + 
+                           OUTPUT_DELIM + countAtStop);
+      return;
+    }
     for (int i = 0; i < submitterQty; i++) {
       DistributorRunnable indexRunnable = lastRunnable.get(i);
       while (indexRunnable == null) {
@@ -96,18 +110,14 @@ public class KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark extends Abst
         indexRunnable = lastRunnable.get(i);
       }
     }
-    @SuppressWarnings("unused")
-    long countAtStop = execCount.get();
     for (int i = 0; i < submitterQty; i++) {
       DistributorRunnable indexRunnable = lastRunnable.get(i);
       while (! indexRunnable.runFinshed) {
         spin(500000); // spin for 1/2 millisecond
       }
     }
-    /*System.out.println((schedule ? "Schedule total: " : "Total: ") + 
-                         execCount.get() + " occurred after stop: " + (execCount.get() - countAtStop));*/
-    System.out.println(KeyDistributedExecutorUniqueKeyUnfairExecutorBenchmark.class.getSimpleName() + 
-                         OUTPUT_DELIM + execCount.get());
+    System.out.println("Total: " + execCount.get() + 
+                         " occurred after stop: " + (execCount.get() - countAtStop));
   }
   
   private class DistributorRunnable implements Runnable {

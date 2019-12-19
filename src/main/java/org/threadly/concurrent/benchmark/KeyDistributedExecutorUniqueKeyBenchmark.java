@@ -2,6 +2,8 @@ package org.threadly.concurrent.benchmark;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import org.threadly.concurrent.PriorityScheduler;
@@ -16,10 +18,12 @@ import org.threadly.util.Clock;
  */
 public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark {
   private static final int SCHEDULE_DELAY = 1;
+  private static final boolean COUNT_AT_STOP = true;
   
   public static void main(String[] args) throws InterruptedException {
     new KeyDistributedExecutorUniqueKeyBenchmark(Integer.parseInt(args[1]))
             .run(Boolean.parseBoolean(args[0]));
+    System.exit(0);
   }
   
   private final int submitterQty;
@@ -57,7 +61,7 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
           ListenableFuture<?> fcFuture1 = FutureUtils.immediateResultFuture(null);
           ListenableFuture<?> fcFuture2 = FutureUtils.immediateResultFuture(null);
           while (run) {
-            for (int i = 0; run && i < 1000; i++) {
+            for (int i = 0; i < 1000 && run; i++) {
               if (schedule) {
                 distributor.schedule(UniqueObject.INSTANCE, dr, SCHEDULE_DELAY);
               } else {
@@ -65,19 +69,22 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
               }
             }
 
-            if (run) {
+            while (run) {
               try {
-                fcFuture1.get();  // block till done
-              } catch (InterruptedException e) {
+                fcFuture1.get(200, TimeUnit.MILLISECONDS);  // block till done so we don't submit too much
+                fcFuture1 = fcFuture2;
+                if (run) {
+                  if (schedule) {
+                    fcFuture2 = distributor.submitScheduled(UniqueObject.INSTANCE, dr, SCHEDULE_DELAY);
+                  } else {
+                    fcFuture2 = distributor.submit(UniqueObject.INSTANCE, dr);
+                  }
+                }
+                break;
+              } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
-              } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-              }
-              fcFuture1 = fcFuture2;
-              if (schedule) {
-                fcFuture2 = distributor.submitScheduled(UniqueObject.INSTANCE, dr, SCHEDULE_DELAY);
-              } else {
-                fcFuture2 = distributor.submit(UniqueObject.INSTANCE, dr);
+              } catch (TimeoutException e) {
+                // retry if still running
               }
             }
           }
@@ -97,6 +104,12 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
     Thread.sleep(RUN_TIME);
 
     run = false;
+    long countAtStop = execCount.get();
+    if (COUNT_AT_STOP) {
+      System.out.println(KeyDistributedExecutorUniqueKeyBenchmark.class.getSimpleName() + 
+                           OUTPUT_DELIM + countAtStop);
+      return;
+    }
     for (int i = 0; i < submitterQty; i++) {
       DistributorRunnable indexRunnable = lastRunnable.get(i);
       while (indexRunnable == null) {
@@ -104,18 +117,14 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
         indexRunnable = lastRunnable.get(i);
       }
     }
-    @SuppressWarnings("unused")
-    long countAtStop = execCount.get();
     for (int i = 0; i < submitterQty; i++) {
       DistributorRunnable indexRunnable = lastRunnable.get(i);
       while (! indexRunnable.runFinshed) {
         spin(500000); // spin for 1/2 millisecond
       }
     }
-    /*System.out.println((schedule ? "Schedule total: " : "Total: ") + 
-                         execCount.get() + " occurred after stop: " + (execCount.get() - countAtStop));*/
-    System.out.println(KeyDistributedExecutorUniqueKeyBenchmark.class.getSimpleName() + 
-                         OUTPUT_DELIM + execCount.get());
+    System.out.println((schedule ? "Schedule total: " : "Total: ") + 
+                         execCount.get() + " occurred after stop: " + (execCount.get() - countAtStop));
   }
   
   private class DistributorRunnable implements Runnable {
