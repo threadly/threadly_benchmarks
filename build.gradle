@@ -9,15 +9,16 @@ repositories {
 }
 
 dependencies {
-  testCompile group: 'junit', name: 'junit', version: '4.+'
-  compile group: 'org.threadly', name: 'threadly', version: '5.+'
-  compile 'org.openjdk.jmh:jmh-core:1.21'
-  compile 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
+  testImplementation group: 'junit', name: 'junit', version: '4.+'
+
+  implementation group: 'org.threadly', name: 'threadly', version: '5.+'
+  implementation 'org.openjdk.jmh:jmh-core:1.21'
+  implementation 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
   annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
-  compile 'org.jdbi:jdbi3-core:3.10.1'
-  compile 'org.jdbi:jdbi3-sqlobject:3.10.1'
-  compile 'org.postgresql:postgresql:9.4.1212.jre7'
-  compile 'org.knowm.xchart:xchart:3.5.2'
+  implementation 'org.jdbi:jdbi3-core:3.10.1'
+  implementation 'org.jdbi:jdbi3-sqlobject:3.10.1'
+  implementation 'org.postgresql:postgresql:9.4.1212.jre7'
+  implementation 'org.knowm.xchart:xchart:3.5.2'
 }
 
 test {
@@ -28,7 +29,9 @@ jar {
   manifest {
     attributes 'Implementation-Title': 'Threadly Benchmarks'
   }
-  from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+  from configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -45,7 +48,7 @@ build.dependsOn("copyLibs");
 
 task copyLibs(type: Copy) {
   into "$buildDir/dependencies/"
-  from configurations.runtime
+  from configurations.runtimeClasspath
 }
 
 artifacts {
