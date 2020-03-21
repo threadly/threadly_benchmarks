@@ -11,12 +11,12 @@ repositories {
 dependencies {
   testImplementation group: 'junit', name: 'junit', version: '4.+'
 
-  implementation group: 'org.threadly', name: 'threadly', version: '5.+'
+  implementation group: 'org.threadly', name: 'threadly', version: '6.+'
   implementation 'org.openjdk.jmh:jmh-core:1.21'
   implementation 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
   annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
-  implementation 'org.jdbi:jdbi3-core:3.10.1'
-  implementation 'org.jdbi:jdbi3-sqlobject:3.10.1'
+  implementation 'org.jdbi:jdbi3-core:3.11.+'
+  implementation 'org.jdbi:jdbi3-sqlobject:3.11.+'
   implementation 'org.postgresql:postgresql:9.4.1212.jre7'
   implementation 'org.knowm.xchart:xchart:3.5.2'
 }

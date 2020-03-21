@@ -23,45 +23,45 @@ import org.threadly.concurrent.future.ImmediateResultListenableFuture;
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 public class ImmediateListenableFutureMicro extends AbstractListenableFutureMicro {
+  private static final ImmediateResultListenableFuture<Void> RESULT_FUTURE = 
+      new ImmediateResultListenableFuture<>(null);
   private static final ImmediateFailureListenableFuture<Void> FAILURE_FUTURE = 
       new ImmediateFailureListenableFuture<>(FAILURE);
 
   @Benchmark
   @Group("Listener")
   public void resultFutureListener() {
-    ImmediateResultListenableFuture.NULL_RESULT.listener(DoNothingRunnable.instance());
+    RESULT_FUTURE.listener(DoNothingRunnable.instance());
   }
   
   @Benchmark
   @Group("Listener")
   public void resultFutureExecutedListener() {
-    ImmediateResultListenableFuture.NULL_RESULT.listener(DoNothingRunnable.instance(), 
-                                                         SameThreadSubmitterExecutor.instance());
+    RESULT_FUTURE.listener(DoNothingRunnable.instance(), SameThreadSubmitterExecutor.instance());
   }
   
   @Benchmark
   @Group("Listener")
   public void resultFutureResultCallback() {
-    ImmediateResultListenableFuture.NULL_RESULT.resultCallback(RESULT_CALLBACK);
+    RESULT_FUTURE.resultCallback(RESULT_CALLBACK);
   }
   
   @Benchmark
   @Group("Listener")
   public void resultFutureExecutedResultCallback() {
-    ImmediateResultListenableFuture.NULL_RESULT.resultCallback(RESULT_CALLBACK, 
-                                                               SameThreadSubmitterExecutor.instance());
+    RESULT_FUTURE.resultCallback(RESULT_CALLBACK, SameThreadSubmitterExecutor.instance());
   }
   
   @Benchmark
   @Group("Map")
   public void resultFutureMapped() {
-    ImmediateResultListenableFuture.NULL_RESULT.map(MAPPRER);
+    RESULT_FUTURE.map(MAPPRER);
   }
   
   @Benchmark
   @Group("Map")
   public void resultFutureExecutedMapped() {
-    ImmediateResultListenableFuture.NULL_RESULT.map(MAPPRER, SameThreadSubmitterExecutor.instance());
+    RESULT_FUTURE.map(MAPPRER, SameThreadSubmitterExecutor.instance());
   }
   
   @Benchmark

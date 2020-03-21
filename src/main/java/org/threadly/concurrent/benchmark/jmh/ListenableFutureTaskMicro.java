@@ -72,6 +72,56 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
+  @Group("Done_Map")
+  public void doneResultMapped() {
+    TASK_DONE_WITH_RESULT.map(MAPPRER);
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneResultExecutedMapped() {
+    TASK_DONE_WITH_RESULT.map(MAPPRER, SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneFailureMapped() {
+    TASK_DONE_WITH_FAILURE.mapFailure(Exception.class, FAILURE_MAPPRER);
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneFailureExecutedMapped() {
+    TASK_DONE_WITH_FAILURE.mapFailure(Exception.class, FAILURE_MAPPRER, 
+                                      SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneFailureMapNoOp() {
+    TASK_DONE_WITH_FAILURE.map(MAPPRER);
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneFailureExecutedMapNoOp() {
+    TASK_DONE_WITH_FAILURE.map(MAPPRER, SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneResultFailureMapNoOp() {
+    TASK_DONE_WITH_RESULT.mapFailure(Exception.class, FAILURE_MAPPRER);
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneResultFailureMapExecutedNoOp() {
+    TASK_DONE_WITH_RESULT.mapFailure(Exception.class, FAILURE_MAPPRER, 
+                                     SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
   @Group("Listener")
   public void runResultWithListener() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());

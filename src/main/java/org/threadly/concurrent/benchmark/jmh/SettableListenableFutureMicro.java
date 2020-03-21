@@ -78,6 +78,56 @@ public class SettableListenableFutureMicro extends AbstractListenableFutureMicro
   }
   
   @Benchmark
+  @Group("Done_Map")
+  public void doneResultMapped() {
+    SETTABLE_DONE_WITH_RESULT.map(MAPPRER);
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneResultExecutedMapped() {
+    SETTABLE_DONE_WITH_RESULT.map(MAPPRER, SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneFailureMapped() {
+    SETTABLE_DONE_WITH_FAILURE.mapFailure(Exception.class, FAILURE_MAPPRER);
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneFailureExecutedMapped() {
+    SETTABLE_DONE_WITH_FAILURE.mapFailure(Exception.class, FAILURE_MAPPRER, 
+                                          SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneFailureMapNoOp() {
+    SETTABLE_DONE_WITH_FAILURE.map(MAPPRER);
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneFailureExecutedMapNoOp() {
+    SETTABLE_DONE_WITH_FAILURE.map(MAPPRER, SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneResultFailureMapNoOp() {
+    SETTABLE_DONE_WITH_RESULT.mapFailure(Exception.class, FAILURE_MAPPRER);
+  }
+  
+  @Benchmark
+  @Group("Done_Map")
+  public void doneResultFailureMapExecutedNoOp() {
+    SETTABLE_DONE_WITH_RESULT.mapFailure(Exception.class, FAILURE_MAPPRER, 
+                                         SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
   @Group("Listener")
   public void setResultWithListener() {
     SettableListenableFuture<Void> slf = new SettableListenableFuture<>();
