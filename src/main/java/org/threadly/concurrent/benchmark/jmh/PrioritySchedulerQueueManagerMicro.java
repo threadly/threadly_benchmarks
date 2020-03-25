@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -92,39 +91,34 @@ public class PrioritySchedulerQueueManagerMicro extends PriorityScheduler {
   }
   
   @Benchmark
-  @Group("GetTask")
-  public void getNextTaskHigh() {
+  public void getTaskHigh_next() {
     HIGH_QUEUE_MANAGER.getNextTask(true);
   }
   
   @Benchmark
-  @Group("GetTask")
-  public void getNextTaskHighShortcut() {
+  public void getTaskHigh_nextShortcut() {
     HIGH_QUEUE_MANAGER.getNextTask(false);
   }
   
   @Benchmark
-  @Group("GetTask")
-  public void getNextTaskLow() {
+  public void getTaskLow_next() {
     LOW_QUEUE_MANAGER.getNextTask(true);
   }
   
   @Benchmark
-  @Group("GetTask")
-  public void getNextTaskLowShortcut() {
+  public void getTaskLow_nextShortcut() {
     LOW_QUEUE_MANAGER.getNextTask(false);
   }
   
   /*@Benchmark
   // can't be grouped due to clock check / update
-  public void getNextTaskStarvable() {
+  public void getTaskStarvable_next() {
     STARVABLE_QUEUE_MANAGER.getNextTask(true);
     //STARVABLE_QUEUE_MANAGER.getNextAnyTask();
   }*/
   
   @Benchmark
-  @Group("GetTask")
-  public void getNextTaskStarvableIgnored() {
+  public void getTaskStarvable_nextShortcut() {
     STARVABLE_QUEUE_MANAGER.getNextTask(false);
     //STARVABLE_QUEUE_MANAGER.getNextNonStarvableTask();
   }

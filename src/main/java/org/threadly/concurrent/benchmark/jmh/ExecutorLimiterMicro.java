@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -29,15 +28,13 @@ public class ExecutorLimiterMicro {
       new BenchmarkExecutorLimiter();
   
   @Benchmark
-  @Group("AddAndConsume")
-  public void consumeOneLimitedTask() {
+  public void addAndConsume_oneTask() {
     LIMITER_1.addTasks(1);
     LIMITER_1.executeTasks();
   }
   
   @Benchmark
-  @Group("AddAndConsume")
-  public void consumeTwoLimitedTasks() {
+  public void addAndConsume_twoTasks() {
     LIMITER_2.addTasks(2);
     LIMITER_2.executeTasks();
   }

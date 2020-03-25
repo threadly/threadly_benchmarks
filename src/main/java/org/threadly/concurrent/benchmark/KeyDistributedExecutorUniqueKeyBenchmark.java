@@ -43,7 +43,7 @@ public class KeyDistributedExecutorUniqueKeyBenchmark extends AbstractBenchmark 
   
   private void spin(int maxTimeInNanos) {
     long startTime = System.nanoTime();
-    int waitTime = RANDOM.nextInt(maxTimeInNanos);
+    int waitTime = ThreadLocalRandom.current().nextInt(maxTimeInNanos);
     while (run && System.nanoTime() < startTime + waitTime) {
       // spin
       Thread.yield();

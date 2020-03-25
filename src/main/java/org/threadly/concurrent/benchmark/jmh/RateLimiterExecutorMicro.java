@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.annotations.GroupThreads;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
@@ -23,7 +22,7 @@ import org.threadly.concurrent.wrapper.limiter.RateLimiterExecutor;
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 public class RateLimiterExecutorMicro {
-  private static final int THREADS_PER_TEST = 2;
+  private static final int THREADS_PER_TEST = 1;
   private static final BenchmarkRateLimiterExecutor LIMITER_1 = 
       new BenchmarkRateLimiterExecutor();
   private static final BenchmarkRateLimiterExecutor LIMITER_2 = 
@@ -36,31 +35,27 @@ public class RateLimiterExecutorMicro {
   
   @Benchmark
   @GroupThreads(THREADS_PER_TEST)
-  @Group("SubmitTask")
-  public void submitDoNothingRunnable() {
+  public void submit_doNothingRunnable() {
     LIMITER_1.execute(1, DoNothingRunnable.instance());
   }
   
-  /*@Benchmark
+  @Benchmark
   @GroupThreads(THREADS_PER_TEST)
-  @Group("SubmitTask")
-  public void submitRealRunnable() {
+  public void submit_realRunnable() {
     LIMITER_2.execute(1, TEST_DO_NOTHING_RUNNABLE);
-  }*/
+  }
   
   @Benchmark
   @GroupThreads(THREADS_PER_TEST)
-  @Group("SubmitTask")
-  public void submitDoNothingRunnableNoPermit() {
+  public void submitNoPermit_doNothingRunnable() {
     LIMITER_3.execute(0, DoNothingRunnable.instance());
   }
   
-  /*@Benchmark
+  @Benchmark
   @GroupThreads(THREADS_PER_TEST)
-  @Group("SubmitTask")
-  public void submitRealRunnableNoPermit() {
+  public void submitNoPermit_realRunnable() {
     LIMITER_4.execute(0, TEST_DO_NOTHING_RUNNABLE);
-  }*/
+  }
   
   private static class BenchmarkRateLimiterExecutor extends RateLimiterExecutor {
     public BenchmarkRateLimiterExecutor() {

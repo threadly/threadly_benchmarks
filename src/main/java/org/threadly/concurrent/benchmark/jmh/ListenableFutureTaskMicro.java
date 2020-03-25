@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -36,158 +35,167 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  @Group("Run")
-  public void runResult() {
+  public void run() {
     new ListenableFutureTask<Void>(false, DoNothingRunnable.instance()).run();
   }
   
   @Benchmark
-  @Group("Done")
-  public void doneResultWithListener() {
+  public void doneResult_listener() {
     TASK_DONE_WITH_RESULT.listener(DoNothingRunnable.instance());
   }
   
   @Benchmark
-  @Group("Done")
-  public void doneResultWithResultCallback() {
+  public void doneResult_resultCallback() {
     TASK_DONE_WITH_RESULT.resultCallback(RESULT_CALLBACK);
   }
   
   @Benchmark
-  @Group("Done")
-  public void doneResultWithFailureCallback() {
+  public void doneResult_failureCallback() {
     TASK_DONE_WITH_RESULT.failureCallback(FAILURE_CALLBACK);
   }
   
   @Benchmark
-  @Group("Done")
-  public void doneFailureWithResultCallback() {
+  public void doneFailure_resultCallback() {
     TASK_DONE_WITH_FAILURE.resultCallback(RESULT_CALLBACK);
   }
   
   @Benchmark
-  @Group("Done")
-  public void doneFailureWithFailureCallback() {
+  public void doneFailure_failureCallback() {
     TASK_DONE_WITH_FAILURE.failureCallback(FAILURE_CALLBACK);
   }
   
   @Benchmark
-  @Group("Done_Map")
-  public void doneResultMapped() {
+  public void doneMapResult_mapped() {
     TASK_DONE_WITH_RESULT.map(MAPPRER);
   }
   
   @Benchmark
-  @Group("Done_Map")
-  public void doneResultExecutedMapped() {
+  public void doneMapResult_executedMapped() {
     TASK_DONE_WITH_RESULT.map(MAPPRER, SameThreadSubmitterExecutor.instance());
   }
   
   @Benchmark
-  @Group("Done_Map")
-  public void doneFailureMapped() {
-    TASK_DONE_WITH_FAILURE.mapFailure(Exception.class, FAILURE_MAPPRER);
-  }
-  
-  @Benchmark
-  @Group("Done_Map")
-  public void doneFailureExecutedMapped() {
-    TASK_DONE_WITH_FAILURE.mapFailure(Exception.class, FAILURE_MAPPRER, 
-                                      SameThreadSubmitterExecutor.instance());
-  }
-  
-  @Benchmark
-  @Group("Done_Map")
-  public void doneFailureMapNoOp() {
-    TASK_DONE_WITH_FAILURE.map(MAPPRER);
-  }
-  
-  @Benchmark
-  @Group("Done_Map")
-  public void doneFailureExecutedMapNoOp() {
-    TASK_DONE_WITH_FAILURE.map(MAPPRER, SameThreadSubmitterExecutor.instance());
-  }
-  
-  @Benchmark
-  @Group("Done_Map")
-  public void doneResultFailureMapNoOp() {
+  public void doneMapResult_failureMapNoOp() {
     TASK_DONE_WITH_RESULT.mapFailure(Exception.class, FAILURE_MAPPRER);
   }
   
   @Benchmark
-  @Group("Done_Map")
-  public void doneResultFailureMapExecutedNoOp() {
+  public void doneMapResult_failureMapExecutedNoOp() {
     TASK_DONE_WITH_RESULT.mapFailure(Exception.class, FAILURE_MAPPRER, 
                                      SameThreadSubmitterExecutor.instance());
   }
   
   @Benchmark
-  @Group("Listener")
-  public void runResultWithListener() {
+  public void doneMapFailure_mapped() {
+    TASK_DONE_WITH_FAILURE.mapFailure(Exception.class, FAILURE_MAPPRER);
+  }
+  
+  @Benchmark
+  public void doneMapFailure_executedMapped() {
+    TASK_DONE_WITH_FAILURE.mapFailure(Exception.class, FAILURE_MAPPRER, 
+                                      SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
+  public void doneMapFailure_mapNoOp() {
+    TASK_DONE_WITH_FAILURE.map(MAPPRER);
+  }
+  
+  @Benchmark
+  public void doneMapFailure_executedMapNoOp() {
+    TASK_DONE_WITH_FAILURE.map(MAPPRER, SameThreadSubmitterExecutor.instance());
+  }
+  
+  @Benchmark
+  public void listener_1CalledOnRun() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     lft.listener(DoNothingRunnable.instance());
     lft.run();
   }
   
   @Benchmark
-  @Group("Listener")
-  public void runResultWithExecutedListener() {
+  public void listener_1ExecutedOnRun() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     lft.listener(DoNothingRunnable.instance(), SameThreadSubmitterExecutor.instance());
     lft.run();
   }
   
   @Benchmark
-  @Group("ResultCallback")
-  public void runResultWithResultCallback() {
+  public void listener_2CalledOnRun() {
+    ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
+    lft.listener(DoNothingRunnable.instance());
+    lft.listener(DoNothingRunnable.instance());
+    lft.run();
+  }
+  
+  @Benchmark
+  public void listener_4CalledOnRun() {
+    ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
+    lft.listener(DoNothingRunnable.instance());
+    lft.listener(DoNothingRunnable.instance());
+    lft.listener(DoNothingRunnable.instance());
+    lft.listener(DoNothingRunnable.instance());
+    lft.run();
+  }
+  
+  @Benchmark
+  public void resultCallbackOnRun_callWithResult() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     lft.resultCallback(RESULT_CALLBACK);
     lft.run();
   }
   
   @Benchmark
-  @Group("ResultCallback")
-  public void runResultWithExecutedResultCallback() {
+  public void resultCallbackOnRun_executedWithResult() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     lft.resultCallback(RESULT_CALLBACK, SameThreadSubmitterExecutor.instance());
     lft.run();
   }
   
   @Benchmark
-  @Group("FailureCallback")
-  public void runResultWithFailureCallback() {
-    ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
-    lft.failureCallback(FAILURE_CALLBACK);
-    lft.run();
-  }
-  
-  @Benchmark
-  @Group("ResultCallback")
-  public void runFailureWithResultCallback() {
+  public void resultCallbackOnRun_failureNoOp() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, THROWING_CALLABLE);
     lft.resultCallback(RESULT_CALLBACK);
     lft.run();
   }
   
   @Benchmark
-  @Group("ResultCallback")
-  public void runFailureWithExecutedResultCallback() {
+  public void resultCallbackOnRun_executedFailureNoOp() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, THROWING_CALLABLE);
     lft.resultCallback(RESULT_CALLBACK, SameThreadSubmitterExecutor.instance());
     lft.run();
   }
   
   @Benchmark
-  @Group("FailureCallback")
-  public void runFailureWithFailureCallback() {
+  public void failureCallbackOnRun_callWithFailure() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, THROWING_CALLABLE);
     lft.failureCallback(FAILURE_CALLBACK);
     lft.run();
   }
   
   @Benchmark
-  @Group("Map_Result")
-  public void runResultMappedFuture() {
+  public void failureCallbackOnRun_executedWithFailure() {
+    ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, THROWING_CALLABLE);
+    lft.failureCallback(FAILURE_CALLBACK, SameThreadSubmitterExecutor.instance());
+    lft.run();
+  }
+  
+  @Benchmark
+  public void failureCallbackOnRun_noOp() {
+    ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
+    lft.failureCallback(FAILURE_CALLBACK);
+    lft.run();
+  }
+  
+  @Benchmark
+  public void failureCallbackOnRun_executedNoOp() {
+    ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
+    lft.failureCallback(FAILURE_CALLBACK, SameThreadSubmitterExecutor.instance());
+    lft.run();
+  }
+  
+  @Benchmark
+  public void mapResultOnRun_mapped() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     @SuppressWarnings("unused")
     ListenableFuture<Void> mapped = lft.map(MAPPRER);
@@ -195,8 +203,7 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  @Group("Map_Result")
-  public void runResultExecutedMappedFuture() {
+  public void mapResultOnRun_executedMapped() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     @SuppressWarnings("unused")
     ListenableFuture<Void> mapped = lft.map(MAPPRER, SameThreadSubmitterExecutor.instance());
@@ -204,8 +211,7 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  @Group("Map_Result")
-  public void runResultFailureMappedFuture() {
+  public void mapResultOnRun_failureMapNoOp() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     @SuppressWarnings("unused")
     ListenableFuture<Void> mapped = lft.mapFailure(Exception.class, FAILURE_MAPPRER);
@@ -213,8 +219,7 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  @Group("Map_Result")
-  public void runResultExecutedFailureMappedFuture() {
+  public void mapResultOnRun_executedFailureMapNoOp() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     @SuppressWarnings("unused")
     ListenableFuture<Void> mapped = lft.mapFailure(Exception.class, FAILURE_MAPPRER, 
@@ -223,8 +228,7 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  @Group("Map_Failure")
-  public void runFailureMappedFuture() {
+  public void mapFailureOnRun_mapNoOp() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, THROWING_CALLABLE);
     @SuppressWarnings("unused")
     ListenableFuture<Void> mapped = lft.map(MAPPRER);
@@ -232,8 +236,7 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  @Group("Map_Failure")
-  public void runFailureExecutedMappedFuture() {
+  public void mapFailureOnRun_executedMapNoOp() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, THROWING_CALLABLE);
     @SuppressWarnings("unused")
     ListenableFuture<Void> mapped = lft.map(MAPPRER, SameThreadSubmitterExecutor.instance());
@@ -241,8 +244,7 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  @Group("Map_Failure")
-  public void runFailureFailureMappedFuture() {
+  public void mapFailureOnRun_mapped() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, THROWING_CALLABLE);
     @SuppressWarnings("unused")
     ListenableFuture<Void> mapped = lft.mapFailure(Exception.class, FAILURE_MAPPRER);
@@ -250,8 +252,7 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  @Group("Map_Failure")
-  public void runFailureExecutedFailureMappedFuture() {
+  public void mapFailureOnRun_executedMapped() {
     ListenableFutureTask<Void> lft = new ListenableFutureTask<>(false, THROWING_CALLABLE);
     @SuppressWarnings("unused")
     ListenableFuture<Void> mapped = lft.mapFailure(Exception.class, FAILURE_MAPPRER, 

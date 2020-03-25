@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -29,50 +28,42 @@ public class ImmediateListenableFutureMicro extends AbstractListenableFutureMicr
       new ImmediateFailureListenableFuture<>(FAILURE);
 
   @Benchmark
-  @Group("Listener")
-  public void resultFutureListener() {
+  public void listener_called() {
     RESULT_FUTURE.listener(DoNothingRunnable.instance());
   }
   
   @Benchmark
-  @Group("Listener")
-  public void resultFutureExecutedListener() {
+  public void listener_executed() {
     RESULT_FUTURE.listener(DoNothingRunnable.instance(), SameThreadSubmitterExecutor.instance());
   }
   
   @Benchmark
-  @Group("Listener")
-  public void resultFutureResultCallback() {
+  public void resultCallback_called() {
     RESULT_FUTURE.resultCallback(RESULT_CALLBACK);
   }
   
   @Benchmark
-  @Group("Listener")
-  public void resultFutureExecutedResultCallback() {
+  public void resultCallback_executed() {
     RESULT_FUTURE.resultCallback(RESULT_CALLBACK, SameThreadSubmitterExecutor.instance());
   }
   
   @Benchmark
-  @Group("Map")
-  public void resultFutureMapped() {
+  public void map_resultMapped() {
     RESULT_FUTURE.map(MAPPRER);
   }
   
   @Benchmark
-  @Group("Map")
-  public void resultFutureExecutedMapped() {
+  public void map_resultMapExecuted() {
     RESULT_FUTURE.map(MAPPRER, SameThreadSubmitterExecutor.instance());
   }
   
   @Benchmark
-  @Group("Map")
-  public void failureFutureMapped() {
+  public void map_failureMapped() {
     FAILURE_FUTURE.mapFailure(Exception.class, FAILURE_MAPPRER);
   }
   
   @Benchmark
-  @Group("Map")
-  public void failureFutureExecutedMapped() {
+  public void map_failureMappedExecuted() {
     FAILURE_FUTURE.mapFailure(Exception.class, FAILURE_MAPPRER, SameThreadSubmitterExecutor.instance());
   }
 }

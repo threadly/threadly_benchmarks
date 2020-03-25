@@ -1,5 +1,6 @@
 package org.threadly.concurrent.benchmark;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.threadly.concurrent.PriorityScheduler;
@@ -37,7 +38,7 @@ public class KeyDistributedExecutorManySubmitterBenchmark extends AbstractBenchm
   
   private void spin(int maxTimeInNanos) {
     long startTime = System.nanoTime();
-    int waitTime = RANDOM.nextInt(maxTimeInNanos);
+    int waitTime = ThreadLocalRandom.current().nextInt(maxTimeInNanos);
     while (run && System.nanoTime() < startTime + waitTime) {
       // spin
       Thread.yield();

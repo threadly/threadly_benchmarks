@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
@@ -75,24 +74,21 @@ public class PrioritySchedulerWorkerPoolMicro extends PriorityScheduler {
   }
   
   @Benchmark
-  @Group("TaskCycle")
-  public void addAndPollHighPriority() {
+  public void taskCycle_addAndPollHighPriority() {
     ProtectedAccessor.resetStatus(HIGH_PRIORITY_TASK);
     HIGH_PRIORITY_QUEUE_SET.addExecute(HIGH_PRIORITY_TASK);
     SETUP_HIGH_WORKER_POOL.workerIdle(NOT_STARTED_HIGH_WORKER);
   }
   
   @Benchmark
-  @Group("TaskCycle")
-  public void addAndPollLowPriority() {
+  public void taskCycle_addAndPollLowPriority() {
     ProtectedAccessor.resetStatus(LOW_PRIORITY_TASK);
     LOW_PRIORITY_QUEUE_SET.addExecute(LOW_PRIORITY_TASK);
     SETUP_LOW_WORKER_POOL.workerIdle(NOT_STARTED_LOW_WORKER);
   }
   
   @Benchmark
-  @Group("TaskCycle")
-  public void addAndPollStarvablePriority() {
+  public void taskCycle_addAndPollStarvablePriority() {
     ProtectedAccessor.resetStatus(STARVABLE_PRIORITY_TASK);
     STARVABLE_PRIORITY_QUEUE_SET.addExecute(STARVABLE_PRIORITY_TASK);
     SETUP_STARVABLE_WORKER_POOL.workerIdle(NOT_STARTED_STARVABLE_WORKER);

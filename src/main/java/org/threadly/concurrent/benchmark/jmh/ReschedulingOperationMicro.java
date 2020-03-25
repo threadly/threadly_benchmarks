@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
 import org.openjdk.jmh.annotations.GroupThreads;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
@@ -46,29 +45,25 @@ public class ReschedulingOperationMicro {
       };
 
   @Benchmark
-  @Group("Synchronous")
-  public void signalToRun() {
+  public void synchronous_signalToRun() {
     FAST_OPERATION.signalToRun();
     FAST_OPERATION.signalToRun(); // Run twice to make invoke counts match signalToRunFromRun
   }
 
   @Benchmark
-  @Group("Synchronous")
-  public void signalToRunFromRun() {
+  public void synchronous_signalToRunFromRun() {
     SIGNAL_RUN_OPERATION.signalToRun();
   }
 
   @Benchmark
   @GroupThreads(2)
-  @Group("Threaded")
-  public void signalToRunThreaded() {
+  public void threaded_signalToRun() {
     FAST_OPERATION.signalToRun();
   }
 
   @Benchmark
   @GroupThreads(2)
-  @Group("Threaded")
-  public void signalToRunFromRunThreaded() {
+  public void threaded_signalToRunFromRun() {
     SIGNAL_RUN_OPERATION.signalToRun();
   }
 }
