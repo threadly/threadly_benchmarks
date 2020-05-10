@@ -1,6 +1,7 @@
 package org.threadly.concurrent.benchmark.jmh;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -12,6 +13,7 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.threadly.concurrent.DoNothingRunnable;
 import org.threadly.concurrent.SameThreadSubmitterExecutor;
+import org.threadly.concurrent.SingleThreadScheduler;
 import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.concurrent.future.ListenableFutureTask;
 
@@ -26,8 +28,12 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   private static final Callable<Void> THROWING_CALLABLE = () -> { throw FAILURE; };
   private static final ListenableFutureTask<Void> TASK_DONE_WITH_RESULT;
   private static final ListenableFutureTask<Void> TASK_DONE_WITH_FAILURE;
+  private static final SingleThreadScheduler SCHEDULER;
   
   static {
+    SCHEDULER = new SingleThreadScheduler();
+    SCHEDULER.prestartExecutionThread();
+    
     TASK_DONE_WITH_RESULT = new ListenableFutureTask<>(false, DoNothingRunnable.instance());
     TASK_DONE_WITH_RESULT.run();
     TASK_DONE_WITH_FAILURE = new ListenableFutureTask<>(false, THROWING_CALLABLE);
@@ -35,8 +41,15 @@ public class ListenableFutureTaskMicro extends AbstractListenableFutureMicro {
   }
   
   @Benchmark
-  public void run() {
+  public void constructRun_direct() {
     new ListenableFutureTask<Void>(false, DoNothingRunnable.instance()).run();
+  }
+  
+  @Benchmark
+  public void constructRun_singleThreadSchedulerSubmitAndGet() throws InterruptedException, ExecutionException {
+    ListenableFutureTask<Void> lft = new ListenableFutureTask<Void>(false, DoNothingRunnable.instance());
+    SCHEDULER.execute(lft);
+    lft.get();
   }
   
   @Benchmark

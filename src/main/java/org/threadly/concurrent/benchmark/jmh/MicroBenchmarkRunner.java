@@ -23,8 +23,8 @@ import org.threadly.util.StringUtils;
 
 public class MicroBenchmarkRunner {
   public static final int FORKS = 2;
-  public static final int WARMUP_ITERATIONS = 10;
-  public static final int WARMUP_SECONDS = 1;
+  public static final int WARMUP_ITERATIONS = 5;
+  public static final int WARMUP_SECONDS = 2;
   public static final int RUN_ITERATIONS = 5;
   public static final int RUN_SECONDS = 10;
   private static final boolean ALLOW_MIXED_GROUP_EXECUTION = false;
