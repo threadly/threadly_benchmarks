@@ -59,6 +59,7 @@ public class ReschedulingOperationMicro {
   @GroupThreads(2)
   public void threaded_signalToRun() {
     FAST_OPERATION.signalToRun();
+    FAST_OPERATION.signalToRun();
   }
 
   @Benchmark

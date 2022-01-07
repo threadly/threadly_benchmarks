@@ -437,6 +437,7 @@ public class BenchmarkCollectionRunner {
     }
   }
   
+  @SuppressWarnings("resource")
   private static ExecResult runCommand(String[] command) throws IOException, InterruptedException {
     Process p = null;
     ListenableFuture<String> stdOutFuture = null;
@@ -527,8 +528,16 @@ public class BenchmarkCollectionRunner {
       StringBuilder sb = new StringBuilder();
       byte[] buffer = new byte[1024];
       int c;
-      while ((c = stream.read(buffer)) >= 0) {
-        sb.append(new String(buffer, 0, c));
+      try {
+        while ((c = stream.read(buffer)) >= 0) {
+          sb.append(new String(buffer, 0, c));
+        }
+      } finally {
+        try {
+          stream.close();
+        } catch (IOException e) {
+          // unable to be recovered
+        }
       }
       return sb.toString();
     }

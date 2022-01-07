@@ -30,7 +30,7 @@ public class MicroBenchmarkRunner {
   private static final boolean ALLOW_MIXED_GROUP_EXECUTION = false;
   private static final int MIN_EXPECTED_CORES = 8;
   private static final int MAX_GROUP_SIZE = 
-      (ALLOW_MIXED_GROUP_EXECUTION ? Runtime.getRuntime().availableProcessors() : MIN_EXPECTED_CORES) / 2;
+      Math.max(Runtime.getRuntime().availableProcessors() / 2, MIN_EXPECTED_CORES);
   private static final OutputFormat NORMAL_OUTPUT = 
       OutputFormatFactory.createFormatInstance(System.out, VerboseMode.NORMAL);
   private static final OutputFormat SILENT_OUTPUT = 
