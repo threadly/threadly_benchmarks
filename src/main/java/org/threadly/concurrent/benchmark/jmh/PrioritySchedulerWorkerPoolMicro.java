@@ -182,7 +182,7 @@ public class PrioritySchedulerWorkerPoolMicro extends PriorityScheduler {
     public void loopedWorkerAddToIdleChain() {
       int index;
       while (true) {
-        index = currIndex.getOpaque();
+        index = currIndex.get();
         if (currIndex.compareAndSet(index, (index + 1) % workers.length)) {
           break;
         }
